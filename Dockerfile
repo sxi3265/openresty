@@ -8,7 +8,7 @@ ARG RESTY_IMAGE_BASE="debian"
 ARG RESTY_IMAGE_TAG="trixie-slim"
 ARG RESTY_GIT_MIRROR="github.com"
 ARG RESTY_GIT_RAW_MIRROR="raw.githubusercontent.com"
-ARG RESTY_GIT_REPO="git.hanada.info"
+ARG RESTY_GIT_REPO="github.com/sxi3265"
 ARG RESTY_REPOSITORY="https://${RESTY_GIT_MIRROR}/openresty/openresty.git"
 ARG RESTY_LUAROCKS_VERSION="3.13.0"
 ARG RESTY_LUA_RESTY_BALANCER_VERSION="0.05"
@@ -22,7 +22,7 @@ ARG RESTY_LIBVIPS_VERSION="8.18.6"
 ARG RESTY_MODSECURITY_VERSION="3.0.16"
 ARG RESTY_OWSAP_CRS_VERSION="4.29.0"
 
-FROM dockerhub.hanada.info/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-bundle
+FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-bundle
 
 ARG RESTY_GIT_MIRROR
 ARG RESTY_REPOSITORY
@@ -59,7 +59,7 @@ RUN mkdir -p /build/openresty \
     && mv "openresty-${RESTY_VERSION}.tar.gz" /openresty.tar.gz \
     && printf '%s\n' "${RESTY_VERSION}" > /openresty-version
 
-FROM dockerhub.hanada.info/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-build
+FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-build
 
 ARG RESTY_GIT_MIRROR
 ARG RESTY_GIT_RAW_MIRROR
@@ -298,69 +298,69 @@ RUN mkdir -p /build/lib \
 # Fetch nginx modules.
 RUN mkdir -p /build/modules \
     && cd /build/modules \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_expr_module.git ngx_expr_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stat_module.git ngx_stat_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_REPO}/hanada/ngx_http_brotli_module.git ngx_http_brotli_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
+    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_REPO}/ngx_http_brotli_module.git ngx_http_brotli_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
     && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/weserv/images.git ngx_http_weserv_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/nginx-modules/ngx_cache_purge.git ngx_http_cache_purge_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_access_control_module.git ngx_http_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_auth_akamai_g2o_module.git ngx_http_auth_akamai_g2o_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_auth_hash_module.git ngx_http_auth_hash_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_auth_hmac_module.git ngx_http_auth_hmac_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_geoip2_module.git ngx_geoip2_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_access_control_module.git ngx_http_access_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_akamai_g2o_module.git ngx_http_auth_akamai_g2o_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hash_module.git ngx_http_auth_hash_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hmac_module.git ngx_http_auth_hmac_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_geoip2_module.git ngx_geoip2_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/openresty/replace-filter-nginx-module.git ngx_http_replace_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_lua_config_module.git ngx_lua_config_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_zstd_module.git ngx_http_zstd_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_unbrotli_filter_module.git ngx_http_unbrotli_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_undeflate_filter_module.git ngx_http_undeflate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_unzstd_filter_module.git ngx_http_unzstd_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_delay_module.git ngx_http_delay_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_compression_normalize_module.git ngx_http_compression_normalize_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_compression_vary_filter_module.git ngx_http_compression_vary_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_var_module.git ngx_var_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_cors_module.git ngx_http_cors_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_log_set_module.git ngx_http_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_label_module.git ngx_http_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_headers_control_module.git ngx_http_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_backtrace_module.git ngx_backtrace_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_config_module.git ngx_lua_config_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_zstd_module.git ngx_http_zstd_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unbrotli_filter_module.git ngx_http_unbrotli_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_undeflate_filter_module.git ngx_http_undeflate_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unzstd_filter_module.git ngx_http_unzstd_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_delay_module.git ngx_http_delay_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_normalize_module.git ngx_http_compression_normalize_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_vary_filter_module.git ngx_http_compression_vary_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_var_module.git ngx_var_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cors_module.git ngx_http_cors_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_log_set_module.git ngx_http_log_set_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_label_module.git ngx_http_label_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_headers_control_module.git ngx_http_headers_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_backtrace_module.git ngx_backtrace_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/vozlt/nginx-module-sysguard.git ngx_http_sysguard_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_http_qrcode_module.git ngx_http_qrcode_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_qrcode_module.git ngx_http_qrcode_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/Kong/lua-resty-events.git ngx_lua_events_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_access_control_module.git ngx_stream_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_log_set_module.git ngx_stream_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_label_module.git ngx_stream_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_access_control_module.git ngx_stream_access_control_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_log_set_module.git ngx_stream_log_set_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_label_module.git ngx_stream_label_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
     && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/Kong/lua-resty-lmdb.git ngx_lua_resty_lmdb_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/alibaba/tengine.git tengine \
     && mv tengine/modules/ngx_http_trim_filter_module ngx_http_trim_filter_module \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/owasp-modsecurity/ModSecurity-nginx.git ngx_http_modsecurity_module
@@ -371,9 +371,9 @@ RUN mkdir -p /build/lualib \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/agentzh/lua-resty-multipart-parser.git lua-resty-multipart-parser \
     && git clone --depth=1 --branch v${RESTY_LUA_RESTY_BALANCER_VERSION} https://${RESTY_GIT_MIRROR}/openresty/lua-resty-balancer.git lua-resty-balancer \
     && git clone --depth=1 https://${RESTY_GIT_MIRROR}/api7/jsonschema.git jsonschema \
-    && git clone --depth=1 --branch supported_semaphore_wait_phases https://${RESTY_GIT_MIRROR}/HanadaLee/lua-resty-dns-client.git lua-resty-dns-client \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/hanada/lua-resty-mlcache.git lua-resty-mlcache \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/HanadaLee/lua-lolhtml.git
+    && git clone --depth=1 --branch supported_semaphore_wait_phases https://${RESTY_GIT_MIRROR}/sxi3265/lua-resty-dns-client.git lua-resty-dns-client \
+    && git clone --depth=1 https://${RESTY_GIT_REPO}/lua-resty-mlcache.git lua-resty-mlcache \
+    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/sxi3265/lua-lolhtml.git
 
 # Build foundational native libraries.
 RUN cd /build/lib/libmaxminddb-${RESTY_LIBMAXMINDDB_VERSION} \
@@ -629,7 +629,7 @@ RUN /usr/local/openresty/luajit/bin/luarocks install binaryheap \
     && cd /usr/local/openresty \
     && rm -rf pod site resty.index bin/md2pod.pl bin/nginx-xml2pod bin/restydoc bin/restydoc-index
 
-FROM dockerhub.hanada.info/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS runtime
+FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS runtime
 
 ARG RESTY_IMAGE_BASE
 ARG RESTY_IMAGE_TAG
