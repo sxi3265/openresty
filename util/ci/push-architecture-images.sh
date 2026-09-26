@@ -10,10 +10,6 @@ if [[ -z "$version" || -z "$architecture" ]]; then
     exit 2
 fi
 
-: "${HARBOR_IMAGE:?HARBOR_IMAGE is required}"
-: "${DOCKERHUB_IMAGE:?DOCKERHUB_IMAGE is required}"
 : "${GHCR_IMAGE:?GHCR_IMAGE is required}"
 
-for image in "$HARBOR_IMAGE" "$DOCKERHUB_IMAGE" "$GHCR_IMAGE"; do
-    docker push "${image}:${version}-${architecture}"
-done
+docker push "${GHCR_IMAGE}:${version}-${architecture}"

@@ -6,9 +6,7 @@ commit="${1:-}"
 version="${2:-}"
 output="${3:-release-notes.md}"
 github_repository="${GITHUB_REPOSITORY:-HanadaLee/openresty}"
-harbor_image="${HARBOR_IMAGE:-registry.hanada.info/openresty/openresty}"
-dockerhub_image="${DOCKERHUB_IMAGE:-docker.io/hanadalee/openresty}"
-ghcr_image="${GHCR_IMAGE:-ghcr.io/hanadalee/openresty}"
+ghcr_image="${GHCR_IMAGE:-ghcr.io/sxi3265/openresty}"
 
 if [[ -z "$commit" || -z "$version" ]]; then
     echo "Usage: $0 <commit> <version> [output]" >&2
@@ -43,7 +41,5 @@ previous_tag="$(
     echo
     echo "## Container Images"
     echo
-    echo "- \`${harbor_image}:${version}\`"
-    echo "- \`${dockerhub_image}:${version}\`"
     echo "- \`${ghcr_image}:${version}\`"
 } > "$output"

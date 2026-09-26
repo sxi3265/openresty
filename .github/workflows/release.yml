@@ -10,11 +10,6 @@ on:
         required: false
         type: string
         default: ""
-    secrets:
-      GITLAB_USERNAME:
-        required: true
-      GITLAB_PASSWORD:
-        required: true
   workflow_dispatch:
     inputs:
       version:
@@ -36,12 +31,7 @@ permissions:
   packages: write
 
 env:
-  HARBOR_IMAGE: registry.hanada.info/openresty/openresty
-  DOCKERHUB_IMAGE: docker.io/hanadalee/openresty
-  GHCR_IMAGE: ghcr.io/hanadalee/openresty
-  GITLAB_REPOSITORY: https://git.hanada.info/hanada/openresty.git
-  GITLAB_API_URL: https://git.hanada.info/api/v4
-  GITLAB_PROJECT_ID: "22"
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}
 
 concurrency:
   group: publish-release-${{ inputs.version }}
@@ -57,20 +47,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Log in to Harbor
-        uses: docker/login-action@v4
-        with:
-          registry: registry.hanada.info
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
@@ -82,16 +58,15 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ inputs.version }}
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}
         run: |
           set -euo pipefail
 
-          for image in "$HARBOR_IMAGE" "$DOCKERHUB_IMAGE" "$GHCR_IMAGE"; do
-            docker buildx imagetools create \
-              --tag "${image}:${VERSION}" \
-              --tag "${image}:latest" \
-              "${image}:${VERSION}-amd64" \
-              "${image}:${VERSION}-arm64"
-          done
+          docker buildx imagetools create \
+            --tag "${GHCR_IMAGE}:${VERSION}" \
+            --tag "${GHCR_IMAGE}:latest" \
+            "${GHCR_IMAGE}:${VERSION}-amd64" \
+            "${GHCR_IMAGE}:${VERSION}-arm64"
 
   release:
     name: Publish tags and releases
@@ -108,21 +83,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Synchronize tags and publish releases
+      - name: Publish tag and GitHub release
         shell: bash
         env:
           COMMIT: ${{ inputs.commit || github.sha }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
-          GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD }}
           VERSION: ${{ inputs.version }}
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}
         run: |
           set -euo pipefail
-          bash util/ci/sync-release-tag.sh "$COMMIT" "$VERSION"
-          git push origin "refs/tags/${VERSION}:refs/tags/${VERSION}"
-          bash util/ci/release-notes.sh "$COMMIT" "$VERSION"
-          bash util/ci/publish-gitlab-release.sh \
-            "$VERSION" release-notes.md
+
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+          if git rev-parse -q --verify "refs/tags/${VERSION}" >/dev/null; then
+            echo "Tag ${VERSION} already exists"
+          else
+            git tag "${VERSION}" "${COMMIT}"
+            git push origin "refs/tags/${VERSION}:refs/tags/${VERSION}"
+          fi
+
+          bash util/ci/release-notes.sh "$COMMIT" "$VERSION" release-notes.md
 
           if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "GitHub release ${VERSION} already exists"
