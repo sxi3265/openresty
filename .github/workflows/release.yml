@@ -10,6 +10,10 @@ on:
         required: false
         type: string
         default: ""
+      publish_manifests:
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
     inputs:
       version:
@@ -40,7 +44,7 @@ concurrency:
 jobs:
   manifest:
     name: Publish multi-platform manifests
-    if: github.event_name != 'workflow_dispatch' || inputs.publish_manifests
+    if: inputs.publish_manifests
     runs-on: ubuntu-24.04
 
     steps:
@@ -89,7 +93,6 @@ jobs:
           COMMIT: ${{ inputs.commit || github.sha }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ inputs.version }}
-          GHCR_IMAGE: ghcr.io/${{ github.repository }}
         run: |
           set -euo pipefail
 
@@ -105,12 +108,5 @@ jobs:
 
           bash util/ci/release-notes.sh "$COMMIT" "$VERSION" release-notes.md
 
-          if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "GitHub release ${VERSION} already exists"
-          else
-            gh release create "$VERSION" \
-              --verify-tag \
-              --target "$COMMIT" \
-              --title "$VERSION" \
-              --notes-file release-notes.md
-          fi
+          bash util/ci/publish-github-release.sh \
+            "$VERSION" "$COMMIT" release-notes.md

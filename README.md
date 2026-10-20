@@ -11,7 +11,6 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
 - [Description](#description)
 - [Building](#building)
 - [Testing](#testing)
-- [Continuous Integration and Releases](#continuous-integration-and-releases)
 - [Components](#components)
   - [Components of official OpenResty bundle](#components-of-official-openresty-bundle)
   - [Components of this OpenResty bundle](#components-of-this-openresty-bundle)
@@ -45,6 +44,8 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - [$slice\_error](#slice_error)
   - [ngx\_http\_sub\_filter\_module](#ngx_http_sub_filter_module)
     - [Conditional sub\_filter](#conditional-sub_filter)
+  - [ngx\_http\_trim\_filter\_module](#ngx_http_trim_filter_module)
+    - [Conditional trim](#conditional-trim)
   - [ngx\_http\_proxy\_module and related modules](#ngx_http_proxy_module-and-related-modules)
     - [proxy\_ssl\_certificate\_load](#proxy_ssl_certificate_load)
     - [Proxy filter Framework](#proxy-filter-framework)
@@ -127,8 +128,7 @@ built directly from the repository root:
 docker build --tag openresty:local .
 ```
 
-To build a versioned local image with the same version metadata as CI, resolve
-the pinned upstream version first:
+To build a versioned local image, resolve the pinned upstream version first:
 
 ```shell
 resty_version="$(bash util/openresty-version.sh)"
@@ -151,19 +151,22 @@ commit and must be regenerated or revalidated whenever that commit changes.
 The default `RESTY_REPOSITORY` is derived from `RESTY_GIT_MIRROR`, so overriding
 the mirror also applies to the pinned OpenResty source checkout.
 
+Dynamic modules must be rebuilt using the same patched source revision and
+configuration headers as the server. The module signature includes an extension
+ABI revision and the expression, proxy-filter, gRPC-filter and HTTP SSL feature
+flags.
+Modules built for unpatched nginx, earlier extension ABIs or incompatible
+feature configurations are rejected with `is not binary compatible`.
+`--with-compat` does not bypass these extension checks; existing `.so` files
+must be rebuilt when adopting this ABI revision.
+
 [Back to TOC](#table-of-contents)
 
 # Testing
 
-The patch regression suite is not embedded in the runtime image and is not run
-by the Dockerfile. CI builds a dedicated test image with `--with-debug`, checks
-out fresh copies of OpenResty's `test-nginx` and nginx's `nginx-tests`, and runs
-the repository's tests in a disposable container. This image is never
-published. When a release is needed, CI separately builds production images
-without `--with-debug` after the test suite succeeds.
-
-The same suite can be run locally with Docker, Git, and a POSIX-compatible
-shell:
+The patch regression suite requires a test image built with `--with-debug`.
+It is not embedded in the runtime image and is not run by the Dockerfile.
+To run the suite locally, use Docker, Git, and a POSIX-compatible shell:
 
 ```shell
 docker build \
@@ -184,41 +187,6 @@ TEST_NGINX_ROOT=/path/to/test-nginx \
 NGINX_TESTS_ROOT=/path/to/nginx-tests \
 bash util/run-tests.sh
 ```
-
-[Back to TOC](#table-of-contents)
-
-# Continuous Integration and Releases
-
-GitHub Actions builds and tests both `linux/amd64` and `linux/arm64` images.
-The release version is
-`RESTY_VERSION.RESTY_RELEASE`: CI reads `RESTY_VERSION` from the pinned
-upstream commit's `util/ver`, while `RESTY_RELEASE` comes from the Dockerfile.
-
-Every push to the main branch builds the debug-only test image and runs the
-patch regression suite. If the version is unchanged, CI stops after testing and
-does not build or push production images. When the version changes, CI performs
-a separate non-debug production build and publishes the architecture images and
-the `version` and `latest` multi-platform manifests to Harbor, Docker Hub, and
-GitHub Container Registry, then creates a matching Git tag and release. Release
-notes summarize commits since the previous version tag, link to the full GitHub
-comparison, and list the versioned Harbor, Docker Hub, and GitHub Container
-Registry image references.
-
-The release workflow publishes the same tag and release notes to GitLab and
-GitHub. Configure the GitHub Actions secrets `GITLAB_USERNAME` with the GitLab
-username and `GITLAB_PASSWORD` with either a personal access token that has the
-`api` scope, or a GitLab project access token that has both the `api` and
-`write_repository` scopes. The project token must have at least the Developer
-role, or the Maintainer role when release tags are protected. Publishing the
-canonical GitLab tag first prevents the GitHub mirror from pruning tags created
-only by GitHub Actions.
-
-The GitHub workflow can also be started manually. An already tagged version is
-always treated as test-only, preventing an existing release from being
-published again by the main CI workflow. The `Publish release` workflow can be
-started manually with an existing version and its full commit SHA to repair or
-publish missing GitLab and GitHub releases without rebuilding container
-images. Existing immutable GitHub releases are left unchanged.
 
 [Back to TOC](#table-of-contents)
 
@@ -275,7 +243,7 @@ The following components are additionally bundled with OpenResty, some of which 
 * [ngx_http_server_redirect_module](https://git.hanada.info/hanada/ngx_http_server_redirect_module)
 * [ngx_http_sorted_args_module](https://git.hanada.info/hanada/ngx_http_sorted_args_module)
 * [ngx_http_sysguard_module](https://github.com/vozlt/nginx-module-sysguard)
-* [ngx_http_trim_filter_module](https://github.com/alibaba/tengine/tree/master/modules/ngx_http_trim_filter_module)
+* [ngx_http_trim_filter_module](https://git.hanada.info/hanada/ngx_http_trim_filter_module)
 * [ngx_http_cache_dechunk_filter_module](https://git.hanada.info/hanada/ngx_http_cache_dechunk_filter_module)
 * [ngx_http_ua_parser_module](https://git.hanada.info/hanada/ngx_http_ua_parser_module)
 * [ngx_http_unbrotli_filter_module](https://git.hanada.info/hanada/ngx_http_unbrotli_filter_module)
@@ -491,7 +459,7 @@ Specify the format of the request ID.
 
 * **Context:** *http, server, location*
 
-Specify the header name to be inherited by the request ID. If no header is specified, the request id will always be regenerated.
+Specifies the request header from which to inherit the request ID. The first matching header is used. Its value must contain 1 to 1024 bytes, using only ASCII letters, digits, periods (`.`), hyphens (`-`), and underscores (`_`). If the header is not configured, is missing, or has an invalid value, a new ID is generated using `request_id_algorithm`.
 
 ### Configurable default error pages
 
@@ -557,7 +525,7 @@ when use_json_error {
 }
 ```
 
-These directives are inherited from the previous configuration level if and only if there are no error_page directives defined on the current level (including when subblocks).
+The previous configuration level is used when the current level has no entries or all of its `when` conditions are false. Any unconditional entry or matching condition selects the current level as a whole. If that level has no active mapping for the response status, no parent mapping is used. `no_error_pages` stops inheritance.
 
 ### More directives for not modified checking
 
@@ -625,27 +593,25 @@ By initially sending small (1 TCP segment) sized records, we are able to avoid H
 
 By sending increasingly larger records later in the connection, when HoL is not a problem, we reduce the overhead of TLS record (29 bytes per record with GCM/CHACHA-POLY).
 
-Start each connection with small records (1369 byte by default, it can be changed with ssl_dyn_rec_size_lo).
+Start each connection with small records (1369 bytes by default, configurable with `ssl_dynamic_record_low_size`).
 
-After a given number of records (40, change with ssl_dyn_rec_threshold) start sending larger records (4229, ssl_dyn_rec_size_hi).
+After a given number of records (40, configurable with `ssl_dynamic_record_threshold`), start sending larger records (4229 bytes, `ssl_dynamic_record_high_size`).
 
 Eventually after the same number of records, start sending the largest records (ssl_buffer_size).
 
-In case the connection idles for a given amount of time (1s, ssl_dyn_rec_timeout), the process repeats itself (i.e. begin sending small records again).
+In case the connection idles for a given amount of time (1s, `ssl_dynamic_record_timeout`), the process repeats itself (i.e. begin sending small records again).
 
-* **Syntax:** *ssl_dyn_rec on | off;*
+* **Syntax:** *ssl_dynamic_record on | off;*
 
-* **Default:** *ssl_dyn_rec off;*
+* **Default:** *ssl_dynamic_record off;*
 
 * **Context:** *http, server*
 
-Enable dynamic tls records.
+Enables dynamic TLS record sizing.
 
-Unlike the original patch, the directive name is changed from `ssl_dyn_rec_enable` to `ssl_dyn_rec`.
+* **Syntax:** *ssl_dynamic_record_timeout time;*
 
-* **Syntax:** *ssl_dyn_rec_timeout time;*
-
-* **Default:** *ssl_dyn_rec_timeout 1s;*
+* **Default:** *ssl_dynamic_record_timeout 1s;*
 
 * **Context:** *http, server*
 
@@ -653,27 +619,27 @@ We want the initial records to fit into one TCP segment so we don't get TCP HoL 
 
 A connection always starts with small records, but after a certain number of records have been sent, we increase the record size to reduce header overhead.
 
-After a connection has idled for a given timeout, begin the process from the start. The actual parameters are configurable. If ssl_dyn_rec_timeout is 0, we assume ssl_dyn_rec is off.
+After a connection has idled for the specified timeout, the process starts again with small records. A value of `0` disables dynamic TLS record sizing.
 
-* **Syntax:** *ssl_dyn_rec_size_lo number;*
+* **Syntax:** *ssl_dynamic_record_low_size size;*
 
-* **Default:** *ssl_dyn_rec_size_lo 1369;*
-
-* **Context:** *http, server*
-
-Default sizes for the dynamic record sizes are defined to fit maximal TLS + IPv6 overhead in a single TCP segment for lo and 3 segments for hi: 1369 = 1500 - 40 (IP) - 20 (TCP) - 10 (Time) - 61 (Max TLS overhead)
-
-* **Syntax:** *ssl_dyn_rec_size_hi number;*
-
-* **Default:** *ssl_dyn_rec_size_hi 4229;*
+* **Default:** *ssl_dynamic_record_low_size 1369;*
 
 * **Context:** *http, server*
 
-4229 = (1500 - 40 - 20 - 10) * 3 - 61
+Sets the initial record size, also used after an idle timeout. The default accounts for the maximum TLS and IPv6 overhead in one TCP segment: 1369 = 1500 - 40 (IP) - 20 (TCP) - 10 (Time) - 61 (TLS overhead). The size is limited to `ssl_buffer_size`.
 
-* **Syntax:** *ssl_dyn_rec_threshold number;*
+* **Syntax:** *ssl_dynamic_record_high_size size;*
 
-* **Default:** *ssl_dyn_rec_threshold 40;*
+* **Default:** *ssl_dynamic_record_high_size 4229;*
+
+* **Context:** *http, server*
+
+Sets the intermediate record size. The default accounts for three TCP segments: 4229 = (1500 - 40 - 20 - 10) * 3 - 61. The size is limited to `ssl_buffer_size`.
+
+* **Syntax:** *ssl_dynamic_record_threshold number;*
+
+* **Default:** *ssl_dynamic_record_threshold 40;*
 
 * **Context:** *http, server*
 
@@ -800,7 +766,43 @@ when replace_origin {
 sub_filter_once off;
 ```
 
-All unconditional pairs and all pairs whose conditions match are applied together in configuration order. The native inheritance rule is unchanged: pairs are inherited from the previous configuration level only when the current level defines no `sub_filter` pair, including pairs inside `when`.
+The previous configuration level is used when the current level has no pairs or all of its `when` conditions are false. Otherwise, its unconditional pairs and pairs with matching conditions form the replacement set. A search string that is absent from the response or evaluates to an empty value does not cause a fallback to parent pairs; an empty replacement removes the matching text.
+
+[Back to TOC](#table-of-contents)
+
+## ngx_http_trim_filter_module
+
+### Conditional trim
+
+* **Syntax:** *trim on | off;*
+
+* **Default:** *trim off;*
+
+* **Context:** *http, server, location, when*
+
+Enables or disables removal of unnecessary whitespace and comments from HTML
+responses. The value must be `on` or `off`; variables are no longer accepted.
+Use expressions and `when` blocks for conditional settings:
+
+```nginx
+expr compact str_eq $arg_compact 1;
+
+when compact {
+    trim on;
+    trim_js on;
+    trim_css on;
+}
+```
+
+At each configuration level, the first matching setting is used. An
+unconditional setting also matches, so place it after conditional settings
+when using it as a fallback. If no setting matches at the current level, the
+previous level is used. A matching `off` disables the corresponding feature
+instead of falling back.
+
+`trim_js` and `trim_css` use the same syntax, contexts, and selection rules;
+both default to `off` and take effect only when `trim` is enabled. Each switch
+is selected independently. `trim_types` retains its original behavior.
 
 [Back to TOC](#table-of-contents)
 
@@ -883,7 +885,7 @@ grpc_method POST;
 
 ### Conditional upstream directives
 
-When `ngx_expr_module` is compiled, the built-in upstream directives listed below can also be declared in applicable `when` blocks. HTTP directives support the `http`, `server`, and `location` levels, while stream proxy directives support the `stream` and `server` levels. Their native syntax, defaults, and inheritance behavior are unchanged.
+When `ngx_expr_module` is compiled, the built-in upstream directives listed below can also be declared in applicable `when` blocks. HTTP directives support the `http`, `server`, and `location` levels, while stream proxy directives support the `stream` and `server` levels. Their syntax and defaults are unchanged.
 
 For directives that select one effective value, declarations are evaluated in configuration order: the first unconditional declaration or declaration with a matching condition wins. A conditional declaration does not take precedence merely because it has a condition, so put conditional cases before an unconditional fallback.
 
@@ -896,6 +898,20 @@ when long_read {
 
 proxy_read_timeout 30s;
 ```
+
+For `proxy_redirect` and `proxy_cookie_domain`, `proxy_cookie_path`,
+`proxy_cookie_flags`, `proxy_cookie_value`, and `proxy_cookie_max_age`, enabled
+rules are checked in declaration order when processing the upstream response.
+The previous configuration level is used only if no declaration at the current
+level is enabled. A rule that does not match its target does not cause a fallback
+to parent rules.
+
+A matching `off` declaration stops subsequent rules of that directive without
+changing the current target. It does not undo an earlier successful rewrite or
+disable other cookie directives. Combining `off` and ordinary rules under the
+same condition remains a configuration error, including across split blocks.
+An explicit `proxy_redirect default` participates at its declaration position;
+the implicit default is not an additional fallback after enabled rules miss.
 
 The supported directives are listed explicitly below.
 
@@ -982,12 +998,18 @@ Rewrites the value of a cookie in a proxied response. Plain cookie names are mat
 
 For a plain `value`, the matching prefix is replaced and the rest of the cookie value is preserved. A value starting with `~` uses a case-sensitive regular expression, while `~*` uses a case-insensitive regular expression. The `replacement` can contain variables and can reference captures from the value regular expression.
 
+A cookie without `=` is matched as having an empty value. The `=` is added only when the value is rewritten; otherwise the original form is preserved.
+
 ```nginx
 proxy_cookie_value sessionid old- new-;
 proxy_cookie_value ~^session_ ~*^old-(.+)$ new-$1;
 ```
 
-Several `proxy_cookie_value` directives can be configured at the same level. The first rule with a matching cookie name is selected. The `off` parameter cancels rules inherited from the previous configuration level.
+Several `proxy_cookie_value` directives can be configured at the same level.
+The first rule matching both the cookie name and value is selected. A value
+mismatch continues to the next rule; a successful rewrite is not processed
+again by subsequent rules. The `off` parameter cancels rules inherited from
+the previous configuration level.
 
 * **Syntax:** *proxy_cookie_max_age off;*
 *proxy_cookie_max_age cookie time;*
@@ -1018,6 +1040,11 @@ This bundle also adds controls for hiding upstream cookies by name and suppressi
 * **Context:** *http, server, location, when*
 
 Sets "Set-Cookie" fields that will not be passed by cookie name.
+
+All unconditional declarations and declarations with matching `when` conditions
+at the current level are checked in declaration order. Declarations from the
+previous level are used only when none at the current level are enabled; a
+cookie name mismatch does not cause a fallback to the previous level.
 
 See also the [proxy_hide_header](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_hide_header) directive.
 
@@ -1097,7 +1124,7 @@ The stale-while-revalidate extension of the Cache-Control header field permits u
 
 * **Syntax:** *proxy_cache_types mime-type ...;*
 
-* **Default:** *proxy_cache_types text/html;*
+* **Default:** `proxy_cache_types *;`
 
 * **Context:** *http, server, location*
 
@@ -1240,24 +1267,40 @@ upstream state is created are retained and included in the same sequence.
 
 ### Configuring real client IP with multiple request headers
 
-* **Syntax:** *real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;*
+* **Syntax:** *real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol [...];*
 
 * **Default:** *real_ip_header X-Real-IP;*
 
 * **Context:** *http, server, location*
 
-Defines the request header fields whose value will be used to replace the client address. 
+Defines the sources used to replace the client address.
 
-If multiple request fields are defined, the header values ​​will be checked in the order defined in the configuration, and the first header with a valid value will be used:
+Sources are checked in configuration order. Missing or empty sources, and values
+from which no address can be obtained, are skipped. The first source that yields
+an address is used:
 
 ```nginx
 real_ip_header X-Real-IP Cdn-Src-Ip X-Forwarded-For;
 ```
-The values ​​of the above headers will be checked in turn until a valid value is found.
+The connection peer must be trusted by `set_real_ip_from`. The resulting client
+address does not itself need to be trusted.
+
+Comma-separated addresses are processed from right to left, including in ordinary
+header fields. With `real_ip_recursive off`, the last address is used; with `on`,
+trusted proxy addresses are traversed until a non-trusted address is reached.
+Once an address has been obtained, stopping within that chain does not cause
+another source to be selected. `X-Forwarded-For` also processes multiple header
+lines; ordinary fields retain their first matching header line.
+
+Repeated directives at the same configuration level append sources in declaration
+order. Sources are inherited from the previous level only if no `real_ip_header`
+directive is defined at the current level.
 
 The request header field value that contains an optional port is also used to replace the client port. The address and port should be specified according to RFC 3986.
 
-The proxy_protocol parameter changes the client address to the one from the PROXY protocol header. The PROXY protocol must be previously enabled by setting the proxy_protocol parameter in the listen directive.
+The `proxy_protocol` parameter uses the address and port from the PROXY protocol,
+not from an HTTP request header. The PROXY protocol must be enabled by setting
+the `proxy_protocol` parameter in the `listen` directive.
 
 [Back to TOC](#table-of-contents)
 
@@ -1446,7 +1489,7 @@ Defines conditions under which the response will not be gzipped. If at least one
 
 ### Conditional access_log
 
-* **Syntax:** *access_log path [format [buffer=size] [gzip[=level]] [flush=time]]*;  *access_log off*;
+* **Syntax:** *access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition] [sample=number]]*;  *access_log off*;
 
 * **Default:** *access_log logs/access.log combined;*
 
@@ -1455,8 +1498,49 @@ Defines conditions under which the response will not be gzipped. If at least one
 refer to [access_log](https://nginx.org/en/docs/http/ngx_http_log_module.html#access_log)
 
 Define conditions with `ngx_expr_module` and put conditional log entries
-in `when` blocks. Every matching `access_log` entry is written in configuration
+in `when` blocks. Matching `access_log` entries are processed in configuration
 order. Use `when !condition_name` for the inverse case.
+
+The `if=` parameter remains available with or without `ngx_expr_module`.
+Logging is skipped if its value is empty or equal to `0`. When both `when`
+and `if=` are specified, both conditions must permit logging. The `if!=`
+parameter is not supported. This also applies to `upstream_log`.
+
+At each configuration level, an unconditional entry or an entry whose `when`
+condition matches replaces the inherited log list. If no entry is active,
+the nearest parent level with active entries is used. All active entries on
+the selected level are processed in order; parent and child lists are not
+combined. Inherited conditions use the current expression definitions.
+
+The `if=` and `sample=` parameters filter entries after selecting the
+configuration level. A false `if=` value, a sampling miss, a matching `off`, or
+a write failure does not cause fallback to a parent level. `upstream_log` and
+`stat_log` use the same level selection rules, independently of `access_log`.
+
+For HTTP and Stream `access_log`, `sample=` accepts an integer from `0` to
+`2147483647`, including variables and complex values. Omission or `sample=1`
+logs every eligible request/session; `sample=0` skips this destination.
+`sample=N` with `N > 1` independently retains each eligible entry with
+probability `1/N`, rather than selecting every Nth entry. Separate log
+destinations are sampled independently. The same parameter is supported by
+`upstream_log`, where each upstream contact, including a retry, is sampled
+independently.
+
+```nginx
+map $host $access_sample {
+    default 20;
+    important.example.com 1;
+}
+
+access_log logs/access.log combined sample=$access_sample;
+upstream_log logs/upstream.log upstream sample=20;
+```
+
+Sampling is evaluated after `when` and `if=` and does not require
+`ngx_expr_module`. Invalid literal values and duplicate `sample=` parameters
+are configuration errors. An empty, non-integer, negative, or out-of-range
+variable result logs an error and skips only that entry; other log entries
+continue to be processed.
 
 ```nginx
 expr loggable !str_eq $status 204;

@@ -28,15 +28,36 @@ jobs:
       resty_version: ${{ steps.version.outputs.RESTY_VERSION }}
       resty_release: ${{ steps.version.outputs.RESTY_RELEASE }}
       version: ${{ steps.version.outputs.VERSION }}
+      release_needed: ${{ steps.version.outputs.RELEASE_NEEDED }}
+      publish_images: ${{ steps.version.outputs.PUBLISH_IMAGES }}
+      release_commit: ${{ steps.version.outputs.RELEASE_COMMIT }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
+      - name: Check release decision logic
+        shell: bash
+        run: bash t/ci/release-state.sh
+
+      - name: Check module test discovery
+        shell: bash
+        run: bash t/ci/module-tests.sh
+
+      - name: Check regression result recording
+        shell: bash
+        run: bash t/ci/test-run.sh
+
       - name: Read version
         id: version
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # This fork has no GitLab mirror; compare tags against this repo
+          # itself so resolve-version.sh never consults upstream's GitLab.
+          GITLAB_REPOSITORY: https://github.com/${{ github.repository }}.git
         run: |
           set -euo pipefail
           bash util/ci/resolve-version.sh Dockerfile >> "$GITHUB_OUTPUT"
@@ -50,12 +71,18 @@ jobs:
       resty_version: ${{ needs.prepare.outputs.resty_version }}
       resty_release: ${{ needs.prepare.outputs.resty_release }}
       version: ${{ needs.prepare.outputs.version }}
+      publish_arch_images: ${{ needs.prepare.outputs.publish_images == 'true' }}
+    secrets: inherit
 
   publish:
     name: Publish manifests and release
+    if: needs.prepare.outputs.release_needed == 'true'
     needs:
       - prepare
       - build
     uses: ./.github/workflows/release.yml
     with:
       version: ${{ needs.prepare.outputs.version }}
+      commit: ${{ needs.prepare.outputs.release_commit }}
+      publish_manifests: ${{ needs.prepare.outputs.publish_images == 'true' }}
+    secrets: inherit
