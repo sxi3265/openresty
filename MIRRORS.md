@@ -45,6 +45,8 @@ Upstream snapshot taken 2026-09-26 from `git.hanada.info/hanada/*` (all repos pu
 | [ngx_http_security_headers_filter_module](https://github.com/sxi3265/ngx_http_security_headers_filter_module) | `7e002f516e81e5d3e67ec83db31cebad62d27c69` | master | LICENSE |
 | [ngx_http_server_redirect_module](https://github.com/sxi3265/ngx_http_server_redirect_module) | `f41d7f9dd65538d9160f0635f3ce7d613f7a8fd4` | master | LICENSE |
 | [ngx_http_sorted_args_module](https://github.com/sxi3265/ngx_http_sorted_args_module) | `17a45b2c1e47dd10f3b7ca2f5ad6c49c637ce690` | master | LICENSE |
+| [ngx_http_sysguard_module](https://github.com/sxi3265/ngx_http_sysguard_module) | `70bee4736bfd27347d1c1228045707bce64833af` | master | LICENSE |
+| [ngx_http_trim_filter_module](https://github.com/sxi3265/ngx_http_trim_filter_module) | `da6710c2ab9983d517aa6a42d380cd868b6fc3a5` | master | LICENSE |
 | [ngx_http_ua_parser_module](https://github.com/sxi3265/ngx_http_ua_parser_module) | `e1dc7f85b960561027cbc612352659a478407138` | master | LICENSE.md |
 | [ngx_http_unbrotli_filter_module](https://github.com/sxi3265/ngx_http_unbrotli_filter_module) | `2a6338902ad4e54f22d58f494d99d656880c0bcf` | main | none (see note) |
 | [ngx_http_undeflate_filter_module](https://github.com/sxi3265/ngx_http_undeflate_filter_module) | `2d7e197ff051de309a29e22dab60ec2599e2e927` | main | LICENSE |
@@ -67,6 +69,12 @@ Upstream snapshot taken 2026-09-26 from `git.hanada.info/hanada/*` (all repos pu
 Note: `ngx_http_proxy_auth_aws_module` history was rewritten to redact example
 AWS credentials in `nginx_conf_fragment.txt` (doc file, not part of the build).
 Snapshot SHA above refers to the upstream commit; mirror SHAs differ on that repo.
+
+Version tags: every mirror carries the upstream release tag pinned in the
+Dockerfile (for example `1.0.0`), so builds fetch a fixed revision instead of a
+moving branch tip. Tags were synced from `git.hanada.info/hanada/*` on
+2026-10-20. For `ngx_http_proxy_auth_aws_module` the `2.1.2` tag points at the
+redacted equivalent of the upstream tagged commit.
 
 Also forked on GitHub (Dockerfile clones these directly):
 - https://github.com/sxi3265/lua-resty-dns-client (branch `supported_semaphore_wait_phases`)

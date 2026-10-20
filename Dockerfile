@@ -433,72 +433,88 @@ RUN mkdir -p /build/lib \
 # Fetch nginx modules.
 RUN mkdir -p /build/modules \
     && cd /build/modules \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_REPO}/ngx_http_brotli_module.git ngx_http_brotli_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/weserv/images.git ngx_http_weserv_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/nginx-modules/ngx_cache_purge.git ngx_http_cache_purge_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_access_control_module.git ngx_http_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_akamai_g2o_module.git ngx_http_auth_akamai_g2o_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hash_module.git ngx_http_auth_hash_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hmac_module.git ngx_http_auth_hmac_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_geoip2_module.git ngx_geoip2_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/openresty/replace-filter-nginx-module.git ngx_http_replace_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_config_module.git ngx_lua_config_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_zstd_module.git ngx_http_zstd_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unbrotli_filter_module.git ngx_http_unbrotli_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_undeflate_filter_module.git ngx_http_undeflate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unzstd_filter_module.git ngx_http_unzstd_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_delay_module.git ngx_http_delay_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_normalize_module.git ngx_http_compression_normalize_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_vary_filter_module.git ngx_http_compression_vary_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_var_module.git ngx_var_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cors_module.git ngx_http_cors_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_log_set_module.git ngx_http_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_label_module.git ngx_http_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_headers_control_module.git ngx_http_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_backtrace_module.git ngx_backtrace_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/vozlt/nginx-module-sysguard.git ngx_http_sysguard_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_qrcode_module.git ngx_http_qrcode_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/Kong/lua-resty-events.git ngx_lua_events_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_access_control_module.git ngx_stream_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_log_set_module.git ngx_stream_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_label_module.git ngx_stream_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/Kong/lua-resty-lmdb.git ngx_lua_resty_lmdb_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/alibaba/tengine.git tengine \
-    && mv tengine/modules/ngx_http_trim_filter_module ngx_http_trim_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/owasp-modsecurity/ModSecurity-nginx.git ngx_http_modsecurity_module
+    && git clone --depth=1 --branch "${RESTY_NGX_EXPR_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STAT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
+    && git clone --depth=1 --recurse-submodules --branch "${RESTY_NGX_HTTP_BROTLI_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_brotli_module.git ngx_http_brotli_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
+    && git init ngx_http_weserv_module \
+    && git -C ngx_http_weserv_module remote add origin https://${RESTY_GIT_MIRROR}/weserv/images.git \
+    && git -C ngx_http_weserv_module fetch --depth=1 origin "${RESTY_NGX_HTTP_WESERV_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_weserv_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_WESERV_MODULE_COMMIT}" \
+    && git -C ngx_http_weserv_module checkout --detach FETCH_HEAD \
+    && git -C ngx_http_weserv_module submodule update --init --recursive \
+    && git init ngx_http_cache_purge_module \
+    && git -C ngx_http_cache_purge_module remote add origin https://${RESTY_GIT_MIRROR}/nginx-modules/ngx_cache_purge.git \
+    && git -C ngx_http_cache_purge_module fetch --depth=1 origin "${RESTY_NGX_HTTP_CACHE_PURGE_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_cache_purge_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_CACHE_PURGE_MODULE_COMMIT}" \
+    && git -C ngx_http_cache_purge_module checkout --detach FETCH_HEAD \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_ACCESS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_access_control_module.git ngx_http_access_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_AUTH_AKAMAI_G2O_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_auth_akamai_g2o_module.git ngx_http_auth_akamai_g2o_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_AUTH_INTERNAL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_AUTH_HASH_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_auth_hash_module.git ngx_http_auth_hash_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_AUTH_HMAC_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_auth_hmac_module.git ngx_http_auth_hmac_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_ARGS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_REQUEST_COOKIES_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_NETSTORAGE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_BASIC_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_GEOIP2_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_geoip2_module.git ngx_geoip2_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SORTED_ARGS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
+    && git init ngx_http_replace_filter_module \
+    && git -C ngx_http_replace_filter_module remote add origin https://${RESTY_GIT_MIRROR}/openresty/replace-filter-nginx-module.git \
+    && git -C ngx_http_replace_filter_module fetch --depth=1 origin "${RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_replace_filter_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT}" \
+    && git -C ngx_http_replace_filter_module checkout --detach FETCH_HEAD \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_ERROR_LOG_WRITE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_CONFIG_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_config_module.git ngx_lua_config_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_LOAD_VAR_INDEX_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_ZSTD_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_zstd_module.git ngx_http_zstd_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CACHE_DECHUNK_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UNBROTLI_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_unbrotli_filter_module.git ngx_http_unbrotli_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UNDEFLATE_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_undeflate_filter_module.git ngx_http_undeflate_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UNZSTD_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_unzstd_filter_module.git ngx_http_unzstd_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_DELAY_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_delay_module.git ngx_http_delay_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SERVER_REDIRECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UPSTREAM_LOG_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_COMPRESSION_NORMALIZE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_compression_normalize_module.git ngx_http_compression_normalize_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_COMPRESSION_VARY_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_compression_vary_filter_module.git ngx_http_compression_vary_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_REWRITE_STATUS_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_VAR_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_var_module.git ngx_var_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CORS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cors_module.git ngx_http_cors_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LOG_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_log_set_module.git ngx_http_log_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LOOP_DETECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LABEL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_label_module.git ngx_http_label_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_headers_control_module.git ngx_http_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UA_PARSER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_BACKTRACE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_backtrace_module.git ngx_backtrace_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SYSGUARD_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_sysguard_module.git ngx_http_sysguard_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_QRCODE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_qrcode_module.git ngx_http_qrcode_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_EVENTS_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/Kong/lua-resty-events.git ngx_lua_events_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_ACCESS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_access_control_module.git ngx_stream_access_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_ERROR_LOG_WRITE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LOG_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_log_set_module.git ngx_stream_log_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LABEL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_label_module.git ngx_stream_label_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
+    && git clone --depth=1 --recurse-submodules --branch "v${RESTY_NGX_LUA_RESTY_LMDB_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/Kong/lua-resty-lmdb.git ngx_lua_resty_lmdb_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LUA_UPSTREAM_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_TRIM_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_trim_filter_module.git ngx_http_trim_filter_module \
+    && git init ngx_http_modsecurity_module \
+    && git -C ngx_http_modsecurity_module remote add origin https://${RESTY_GIT_MIRROR}/owasp-modsecurity/ModSecurity-nginx.git \
+    && git -C ngx_http_modsecurity_module fetch --depth=1 origin "${RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_modsecurity_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT}" \
+    && git -C ngx_http_modsecurity_module checkout --detach FETCH_HEAD
 
 # Fetch Lua libraries that are not included in the OpenResty bundle.
 RUN mkdir -p /build/lualib \
