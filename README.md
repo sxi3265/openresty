@@ -1,6 +1,6 @@
 # Name
 
-> **Self-maintained fork.** This is a snapshot fork of [HanadaLee/openresty](https://github.com/HanadaLee/openresty) (upstream commit `bc8bf89488f2d02572389158533b3f85ca0ded7f`, release 1.31.6.1.378) that builds from module mirrors hosted under [sxi3265](https://github.com/sxi3265?tab=repositories&q=ngx_) instead of `git.hanada.info`. See [MIRRORS.md](MIRRORS.md) for the full module manifest. Upstream base image registry (`dockerhub.hanada.info`) is replaced with Docker Hub.
+> **Self-maintained fork.** This is a snapshot fork of [HanadaLee/openresty](https://github.com/HanadaLee/openresty) (upstream release 1.31.9.1.395, snapshot commit `faa81e3f`) that builds from module mirrors hosted under [sxi3265](https://github.com/sxi3265?tab=repositories&q=ngx_) instead of `git.hanada.info`. See [MIRRORS.md](MIRRORS.md) for the full module manifest. Upstream base image registry (`dockerhub.hanada.info`) is replaced with Docker Hub.
 
 OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx and LuaJIT
 
@@ -11,15 +11,22 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
 - [Description](#description)
 - [Building](#building)
 - [Testing](#testing)
-- [Continuous Integration and Releases](#continuous-integration-and-releases)
 - [Components](#components)
   - [Components of official OpenResty bundle](#components-of-official-openresty-bundle)
   - [Components of this OpenResty bundle](#components-of-this-openresty-bundle)
   - [Components from LuaRocks](#components-from-luarocks)
+- [Module Overview](#module-overview)
 - [Additional Features](#additional-features)
-  - [ngx\_http](#ngx_http)
-    - [Variables for timestamps and time spent on related operations](#variables-for-timestamps-and-time-spent-on-related-operations)
+  - [Resolver](#resolver)
+    - [nameserver](#nameserver)
+    - [resolver](#resolver-1)
+    - [resolver_next_nameserver](#resolver_next_nameserver)
+    - [resolver_next_nameserver_timeout](#resolver_next_nameserver_timeout)
+    - [resolver_next_nameserver_tries](#resolver_next_nameserver_tries)
+  - [lua-resty-core](#lua-resty-core)
+    - [ngx.resolve](#ngxresolve)
   - [ngx\_http\_lua\_module](#ngx_http_lua_module)
+    - [ngx.fs](#ngxfs)
     - [preaccess\_by\_lua\_block](#preaccess_by_lua_block)
     - [preaccess\_by\_lua\_file](#preaccess_by_lua_file)
     - [preaccess\_by\_lua\_no\_postpone](#preaccess_by_lua_no_postpone)
@@ -33,8 +40,9 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - [More directives for not modified checking](#more-directives-for-not-modified-checking)
   - [ngx\_http\_ssl\_module](#ngx_http_ssl_module)
     - [ssl\_certificate\_load](#ssl_certificate_load)
+    - [Conditional ssl\_reject\_handshake](#conditional-ssl_reject_handshake)
+    - [ssl\_delay\_handshake](#ssl_delay_handshake)
     - [Optimizing TLS over TCP to reduce latency](#optimizing-tls-over-tcp-to-reduce-latency)
-    - [Strict SNI validation](#strict-sni-validation)
     - [Variables about SSL handshake timestamps and time spent](#variables-about-ssl-handshake-timestamps-and-time-spent)
   - [ngx\_http\_slice\_filter\_module](#ngx_http_slice_filter_module)
     - [slice](#slice)
@@ -47,17 +55,15 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - [Conditional sub\_filter](#conditional-sub_filter)
   - [ngx\_http\_proxy\_module and related modules](#ngx_http_proxy_module-and-related-modules)
     - [proxy\_ssl\_certificate\_load](#proxy_ssl_certificate_load)
-    - [Proxy filter Framework](#proxy-filter-framework)
-    - [gRPC filter Framework](#grpc-filter-framework)
     - [gRPC upstream request header variables](#grpc-upstream-request-header-variables)
     - [gRPC upstream URI](#grpc-upstream-uri)
     - [gRPC upstream method](#grpc-upstream-method)
     - [Conditional upstream directives](#conditional-upstream-directives)
     - [Support for inheritance in "proxy\_set\_header" and its friends](#support-for-inheritance-in-proxy_set_header-and-its-friends)
     - [Enhancement of upstream cookie handler](#enhancement-of-upstream-cookie-handler)
+    - [Persistent cache zones](#persistent-cache-zones)
     - [Enhancement of upstream cache control](#enhancement-of-upstream-cache-control)
   - [ngx\_http\_upstream\_module](#ngx_http_upstream_module)
-    - [Extra variables for upstream information](#extra-variables-for-upstream-information)
     - [Upstream errors](#upstream-errors)
   - [ngx\_http\_realip\_module](#ngx_http_realip_module)
     - [Configuring real client IP with multiple request headers](#configuring-real-client-ip-with-multiple-request-headers)
@@ -66,15 +72,6 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - ["if" with multiple conditions](#if-with-multiple-conditions)
     - [Support for "elif" and "else" directives](#support-for-elif-and-else-directives)
     - [Support for "goto" directive](#support-for-goto-directive)
-  - [ngx\_http\_gunzip\_module](#ngx_http_gunzip_module)
-    - [Conditional gunzip](#conditional-gunzip)
-    - [Support for forced gzip decompression](#support-for-forced-gzip-decompression)
-  - [ngx\_http\_gzip\_filter\_module](#ngx_http_gzip_filter_module)
-    - [Conditional gzip](#conditional-gzip)
-    - [Conditional gzip\_comp\_level](#conditional-gzip_comp_level)
-    - [Conditional gzip\_min\_length](#conditional-gzip_min_length)
-    - [gzip\_max\_length](#gzip_max_length)
-    - [gzip\_bypass](#gzip_bypass)
   - [ngx\_http\_log\_module](#ngx_http_log_module)
     - [Conditional access\_log](#conditional-access_log)
   - [ngx\_http\_modsecurity\_module (3rd-party module)](#ngx_http_modsecurity_module-3rd-party-module)
@@ -85,11 +82,13 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - [access\_by\_lua\_no\_postpone](#access_by_lua_no_postpone)
   - [ngx\_stream\_ssl\_module](#ngx_stream_ssl_module)
     - [ssl\_certificate\_load](#ssl_certificate_load-1)
+    - [ssl\_reject\_handshake](#ssl_reject_handshake)
+    - [ssl\_delay\_handshake](#ssl_delay_handshake-1)
     - [Variables about SSL handshake timestamps and time spent](#variables-about-ssl-handshake-timestamps-and-time-spent-1)
   - [ngx\_stream\_proxy\_module](#ngx_stream_proxy_module)
     - [proxy\_ssl\_certificate\_load](#proxy_ssl_certificate_load-1)
   - [ngx\_stream\_upstream\_module](#ngx_stream_upstream_module)
-    - [Extra variables for upstream information](#extra-variables-for-upstream-information-1)
+    - [Extra variables for upstream information](#extra-variables-for-upstream-information)
 - [LuaRocks](#luarocks)
 - [Copyright \& License](#copyright--license)
 
@@ -109,6 +108,8 @@ The bundled software components are copyrighted by the respective copyright hold
 
 # Building
 
+Independent core patches are maintained and applied by their module repositories. Modules using these patches must be built statically.
+
 Docker is the supported build environment. The Dockerfile pins a full commit
 from the upstream [OpenResty repository](https://github.com/openresty/openresty)
 instead of downloading a published bundle or following the moving `master`
@@ -127,8 +128,7 @@ built directly from the repository root:
 docker build --tag openresty:local .
 ```
 
-To build a versioned local image with the same version metadata as CI, resolve
-the pinned upstream version first:
+To build a versioned local image, resolve the pinned upstream version first:
 
 ```shell
 resty_version="$(bash util/openresty-version.sh)"
@@ -151,19 +151,15 @@ commit and must be regenerated or revalidated whenever that commit changes.
 The default `RESTY_REPOSITORY` is derived from `RESTY_GIT_MIRROR`, so overriding
 the mirror also applies to the pinned OpenResty source checkout.
 
+Dynamic modules must be built against the same patched source and configuration headers as the server. Module signatures include the extension ABI. Incompatible modules are rejected with `is not binary compatible`; `--with-compat` does not bypass these checks.
+
 [Back to TOC](#table-of-contents)
 
 # Testing
 
-The patch regression suite is not embedded in the runtime image and is not run
-by the Dockerfile. CI builds a dedicated test image with `--with-debug`, checks
-out fresh copies of OpenResty's `test-nginx` and nginx's `nginx-tests`, and runs
-the repository's tests in a disposable container. This image is never
-published. When a release is needed, CI separately builds production images
-without `--with-debug` after the test suite succeeds.
-
-The same suite can be run locally with Docker, Git, and a POSIX-compatible
-shell:
+The patch regression suite requires a test image built with `--with-debug`.
+It is not embedded in the runtime image and is not run by the Dockerfile.
+To run the suite locally, use Docker, Git, and a POSIX-compatible shell:
 
 ```shell
 docker build \
@@ -187,41 +183,6 @@ bash util/run-tests.sh
 
 [Back to TOC](#table-of-contents)
 
-# Continuous Integration and Releases
-
-GitHub Actions builds and tests both `linux/amd64` and `linux/arm64` images.
-The release version is
-`RESTY_VERSION.RESTY_RELEASE`: CI reads `RESTY_VERSION` from the pinned
-upstream commit's `util/ver`, while `RESTY_RELEASE` comes from the Dockerfile.
-
-Every push to the main branch builds the debug-only test image and runs the
-patch regression suite. If the version is unchanged, CI stops after testing and
-does not build or push production images. When the version changes, CI performs
-a separate non-debug production build and publishes the architecture images and
-the `version` and `latest` multi-platform manifests to Harbor, Docker Hub, and
-GitHub Container Registry, then creates a matching Git tag and release. Release
-notes summarize commits since the previous version tag, link to the full GitHub
-comparison, and list the versioned Harbor, Docker Hub, and GitHub Container
-Registry image references.
-
-The release workflow publishes the same tag and release notes to GitLab and
-GitHub. Configure the GitHub Actions secrets `GITLAB_USERNAME` with the GitLab
-username and `GITLAB_PASSWORD` with either a personal access token that has the
-`api` scope, or a GitLab project access token that has both the `api` and
-`write_repository` scopes. The project token must have at least the Developer
-role, or the Maintainer role when release tags are protected. Publishing the
-canonical GitLab tag first prevents the GitHub mirror from pruning tags created
-only by GitHub Actions.
-
-The GitHub workflow can also be started manually. An already tagged version is
-always treated as test-only, preventing an existing release from being
-published again by the main CI workflow. The `Publish release` workflow can be
-started manually with an existing version and its full commit SHA to repair or
-publish missing GitLab and GitHub releases without rebuilding container
-images. Existing immutable GitHub releases are left unchanged.
-
-[Back to TOC](#table-of-contents)
-
 # Components
 
 ## Components of official OpenResty bundle
@@ -234,80 +195,16 @@ For details on OpenResty's bundled components and features, refer to [openresty.
 
 The following components are additionally bundled with OpenResty, some of which are developed and maintained by Hanada.
 
-* [ngx_backtrace_module](https://git.hanada.info/hanada/ngx_backtrace_module)
-* [ngx_expr_module](https://git.hanada.info/hanada/ngx_expr_module)
-* [ngx_geoip2_module](https://git.hanada.info/hanada/ngx_geoip2_module)
-* [ngx_http_access_control_module](https://git.hanada.info/hanada/ngx_http_access_control_module)
-* [ngx_http_auth_akamai_g2o_module](https://git.hanada.info/hanada/ngx_http_auth_akamai_g2o_module)
-* [ngx_http_auth_hash_module](https://git.hanada.info/hanada/ngx_http_auth_hash_module)
-* [ngx_http_auth_hmac_module](https://git.hanada.info/hanada/ngx_http_auth_hmac_module)
-* [ngx_http_auth_internal_module](https://git.hanada.info/hanada/ngx_http_auth_internal_module)
-* [ngx_http_brotli_module](https://git.hanada.info/hanada/ngx_http_brotli_module)
-* [ngx_http_cache_purge_module](https://github.com/nginx-modules/ngx_cache_purge)
-* [ngx_http_compression_normalize_module](https://git.hanada.info/hanada/ngx_http_compression_normalize_module)
-* [ngx_http_compression_vary_filter_module](https://git.hanada.info/hanada/ngx_http_compression_vary_filter_module)
-* [ngx_http_cors_module](https://git.hanada.info/hanada/ngx_http_cors_module)
-* [ngx_http_delay_module](https://git.hanada.info/hanada/ngx_http_delay_module)
-* [ngx_http_error_log_write_module](https://git.hanada.info/hanada/ngx_http_error_log_write_module)
-* [ngx_http_extra_variables_module](https://git.hanada.info/hanada/ngx_http_extra_variables_module)
-* [ngx_http_grpc_filter_module](https://git.hanada.info/hanada/ngx_http_grpc_filter_module)
-* [ngx_http_grpc_headers_control_module](https://git.hanada.info/hanada/ngx_http_grpc_headers_control_module)
-* [ngx_http_grpc_set_module](https://git.hanada.info/hanada/ngx_http_grpc_set_module)
-* [ngx_http_internal_redirect_module](https://git.hanada.info/hanada/ngx_http_internal_redirect_module)
-* [ngx_http_label_module](https://git.hanada.info/hanada/ngx_http_label_module)
-* [ngx_http_limit_traffic_rate_filter_module](https://github.com/nginx-modules/ngx_http_limit_traffic_ratefilter_module)
-* [ngx_http_log_set_module](https://git.hanada.info/hanada/ngx_http_log_set_module)
-* [ngx_http_loop_detect_module](https://git.hanada.info/hanada/ngx_http_loop_detect_module)
-* [ngx_http_proxy_filter_module](https://git.hanada.info/hanada/ngx_http_proxy_filter_module)
-* [ngx_http_proxy_args_control_module](https://git.hanada.info/hanada/ngx_http_proxy_args_control_module)
-* [ngx_http_proxy_request_cookies_control_module](https://git.hanada.info/hanada/ngx_http_proxy_request_cookies_control_module)
-* [ngx_http_proxy_headers_control_module](https://git.hanada.info/hanada/ngx_http_proxy_headers_control_module)
-* [ngx_http_proxy_auth_aws_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_aws_module)
-* [ngx_http_proxy_auth_netstorage_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_netstorage_module)
-* [ngx_http_proxy_auth_basic_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_basic_module)
-* [ngx_http_proxy_auth_internal_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_internal_module)
-* [ngx_http_proxy_set_module](https://git.hanada.info/hanada/ngx_http_proxy_set_module)
-* [ngx_http_qrcode_module](https://git.hanada.info/hanada/ngx_http_qrcode_module)
-* [ngx_http_replace_filter_module](https://github.com/OpenResty/replace-filter-nginx-module)
-* [ngx_http_headers_control_module](https://git.hanada.info/hanada/ngx_http_headers_control_module)
-* [ngx_http_rewrite_status_filter_module](https://git.hanada.info/hanada/ngx_http_rewrite_status_filter_module)
-* [ngx_http_security_headers_filter_module](https://git.hanada.info/hanada/ngx_http_security_headers_filter_module)
-* [ngx_http_server_redirect_module](https://git.hanada.info/hanada/ngx_http_server_redirect_module)
-* [ngx_http_sorted_args_module](https://git.hanada.info/hanada/ngx_http_sorted_args_module)
-* [ngx_http_sysguard_module](https://github.com/vozlt/nginx-module-sysguard)
-* [ngx_http_trim_filter_module](https://github.com/alibaba/tengine/tree/master/modules/ngx_http_trim_filter_module)
-* [ngx_http_cache_dechunk_filter_module](https://git.hanada.info/hanada/ngx_http_cache_dechunk_filter_module)
-* [ngx_http_ua_parser_module](https://git.hanada.info/hanada/ngx_http_ua_parser_module)
-* [ngx_http_unbrotli_filter_module](https://git.hanada.info/hanada/ngx_http_unbrotli_filter_module)
-* [ngx_http_undeflate_filter_module](https://git.hanada.info/hanada/ngx_http_undeflate_filter_module)
-* [ngx_http_unzstd_filter_module](https://git.hanada.info/hanada/ngx_http_unzstd_filter_module)
-* [ngx_http_upstream_log_module](https://git.hanada.info/hanada/ngx_http_upstream_log_module)
-* [ngx_http_modsecurity_module](https://github.com/HanadaLee/ngx_http_modsecurity_module)
-* [ngx_http_weserv_module](https://github.com/weserv/images)
-* [ngx_http_zstd_module](https://git.hanada.info/hanada/ngx_http_zstd_module)
-* [ngx_lua_config_module](https://git.hanada.info/hanada/ngx_http_lua_config_module)
-* [ngx_lua_events_module](https://github.com/Kong/lua-resty-events)
-* [ngx_lua_load_var_index_module](https://git.hanada.info/hanada/ngx_lua_load_var_index_module)
-* [ngx_lua_resty_lmdb_module](https://github.com/Kong/lua-resty-lmdb)
-* [ngx_lua_upstream_state_module](https://git.hanada.info/hanada/ngx_lua_upstream_state_module)
-* [ngx_ssl_fingerprint_module](https://git.hanada.info/hanada/ngx_ssl_fingerprint_module)
-* [ngx_stat_module](https://git.hanada.info/hanada/ngx_stat_module)
-* [ngx_stream_lua_upstream_module](https://git.hanada.info/hanada/ngx_stream_lua_upstream_module)
-* [ngx_stream_access_control_module](https://git.hanada.info/hanada/ngx_stream_access_control_module)
-* [ngx_stream_error_log_write_module](https://git.hanada.info/hanada/ngx_stream_error_log_write_module)
-* [ngx_stream_log_set_module](https://git.hanada.info/hanada/ngx_stream_log_set_module)
-* [ngx_stream_label_module](https://git.hanada.info/hanada/ngx_stream_label_module)
-* [ngx_stream_extra_variables_module](https://git.hanada.info/hanada/ngx_stream_extra_variables_module)
-* [ngx_var_module](https://git.hanada.info/hanada/ngx_var_module)
+See [Module Overview](#module-overview) for the additional nginx modules and their functions. Other bundled components include:
+
 * [coreruleset](https://github.com/coreruleset/coreruleset)
 * [uap-core](https://github.com/ua-parser/uap-core)
 * [luarocks](https://luarocks.org/)
 * [lua-resty-multipart-parser](https://github.com/agentzh/lua-resty-multipart-parser)
 * [lua-resty-balancer](https://github.com/OpenResty/lua-resty-balancer)
 * [jsonschema](https://github.com/api7/jsonschema)
-* [lua-resty-dns-client](https://git.hanada.info/hanada/lua-resty-dns-client)
 * [lua-resty-mlcache](https://git.hanada.info/hanada/lua-resty-mlcache)
-* [lua-lolhtml](https://github.com/HanadaLee/lua-lolhtml)
+* [lua-lolhtml](https://git.hanada.info/hanada/lua-lolhtml)
 
 ## Components from LuaRocks
 * binaryheap
@@ -345,31 +242,216 @@ The following components are additionally bundled with OpenResty, some of which 
 
 [Back to TOC](#table-of-contents)
 
-# Additional Features
+# Module Overview
 
-This bundle extends the functionality of the Nginx core and 3rd-party modules through patches.
+The following nginx module projects are added to the official OpenResty bundle. Follow each project link for its directives, variables, and examples.
 
-The following are additional features supported in this bundle, while those already included in the official OpenResty bundle have been omitted for brevity.
+| Project | Function |
+| --- | --- |
+| [ngx_backtrace_module](https://git.hanada.info/hanada/ngx_backtrace_module) | Records stack traces when nginx processes terminate abnormally. |
+| [ngx_expr_module](https://git.hanada.info/hanada/ngx_expr_module) | Defines named expressions and `when` blocks for conditional HTTP and Stream configuration. |
+| [ngx_geoip2_module](https://git.hanada.info/hanada/ngx_geoip2_module) | Looks up geographic and network information in MaxMind databases for HTTP and Stream. |
+| [ngx_http_access_control_module](https://git.hanada.info/hanada/ngx_http_access_control_module) | Applies variable-based access rules to HTTP requests. |
+| [ngx_http_auth_internal_module](https://git.hanada.info/hanada/ngx_http_auth_internal_module) | Validates internal authentication fingerprints received in request headers. |
+| [ngx_http_cache_dechunk_filter_module](https://git.hanada.info/hanada/ngx_http_cache_dechunk_filter_module) | Enables byte-range responses from cached content originally received with chunked transfer encoding. |
+| [ngx_http_cache_purge_module](https://git.hanada.info/hanada/ngx_http_cache_purge_module) | Builds cache keys and a persistent RocksDB index; deletes or invalidates entries by URL, prefix, host, or tag, with background processing and parent propagation. |
+| [ngx_http_compression_module](https://git.hanada.info/hanada/ngx_http_compression_module) | Provides gzip, Brotli, Zstd, and deflate compression and decompression, precompressed files, Accept-Encoding normalization, and Vary handling. |
+| [ngx_http_cors_module](https://git.hanada.info/hanada/ngx_http_cors_module) | Configures Cross-Origin Resource Sharing response headers and preflight handling. |
+| [ngx_http_delay_module](https://git.hanada.info/hanada/ngx_http_delay_module) | Delays HTTP request processing. |
+| [ngx_http_error_log_write_module](https://git.hanada.info/hanada/ngx_http_error_log_write_module) | Writes configured messages to the error log during HTTP request processing. |
+| [ngx_http_extra_variables_module](https://git.hanada.info/hanada/ngx_http_extra_variables_module) | Exposes request, response, cache, and upstream information, including request measurements and upstream timing. |
+| [ngx_http_grpc_filter_module](https://git.hanada.info/hanada/ngx_http_grpc_filter_module) | Provides equivalent hooks for gRPC upstream requests and responses. |
+| [ngx_http_grpc_headers_control_module](https://git.hanada.info/hanada/ngx_http_grpc_headers_control_module) | Modifies gRPC upstream request and response headers. |
+| [ngx_http_grpc_set_module](https://git.hanada.info/hanada/ngx_http_grpc_set_module) | Assigns variables while processing gRPC upstream response headers. |
+| [ngx_http_headers_control_module](https://git.hanada.info/hanada/ngx_http_headers_control_module) | Sets, removes, appends, and rewrites client request and response headers. |
+| [ngx_http_internal_redirect_module](https://git.hanada.info/hanada/ngx_http_internal_redirect_module) | Performs internal redirects in configurable request phases and supports HTTP redirects. |
+| [ngx_http_label_module](https://git.hanada.info/hanada/ngx_http_label_module) | Defines HTTP configuration labels exposed as variables. |
+| [ngx_http_limit_traffic_rate_filter_module](https://git.hanada.info/hanada/ngx_http_limit_traffic_rate_filter_module) | Shares a download bandwidth limit among concurrent responses with the same key, across workers. |
+| [ngx_http_log_set_module](https://git.hanada.info/hanada/ngx_http_log_set_module) | Assigns variables before HTTP access logs are written. |
+| [ngx_http_loop_detect_module](https://git.hanada.info/hanada/ngx_http_loop_detect_module) | Detects forwarding loops using the `CDN-Loop` request header. |
+| [ngx_http_modsecurity_module](https://github.com/owasp-modsecurity/ModSecurity-nginx) | Connects HTTP request processing to the ModSecurity v3 web application firewall. |
+| [ngx_http_phase_control_module](https://git.hanada.info/hanada/ngx_http_phase_control_module) | Skips selected HTTP processing phases before their handlers run. |
+| [ngx_http_proxy_args_control_module](https://git.hanada.info/hanada/ngx_http_proxy_args_control_module) | Modifies query arguments sent to HTTP upstreams. |
+| [ngx_http_proxy_auth_aws_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_aws_module) | Generates AWS Signature Version 4 authentication for S3 upstream requests. |
+| [ngx_http_proxy_auth_basic_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_basic_module) | Generates HTTP Basic authentication for upstream requests. |
+| [ngx_http_proxy_auth_internal_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_internal_module) | Generates internal authentication fingerprints for upstream requests. |
+| [ngx_http_proxy_auth_netstorage_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_netstorage_module) | Generates authentication headers for Akamai NetStorage upstream requests. |
+| [ngx_http_proxy_filter_module](https://git.hanada.info/hanada/ngx_http_proxy_filter_module) | Provides hooks for proxy access checks, request headers, response headers and bodies, and request finalization. |
+| [ngx_http_proxy_headers_control_module](https://git.hanada.info/hanada/ngx_http_proxy_headers_control_module) | Modifies HTTP upstream request and response headers. |
+| [ngx_http_proxy_request_cookies_control_module](https://git.hanada.info/hanada/ngx_http_proxy_request_cookies_control_module) | Modifies cookies sent to HTTP upstreams. |
+| [ngx_http_proxy_set_module](https://git.hanada.info/hanada/ngx_http_proxy_set_module) | Assigns variables while processing HTTP upstream response headers. |
+| [ngx_http_qrcode_module](https://git.hanada.info/hanada/ngx_http_qrcode_module) | Generates and serves QR codes. |
+| [ngx_http_replace_filter_module](https://github.com/openresty/replace-filter-nginx-module) | Replaces matching response body content using regular expressions. |
+| [ngx_http_rewrite_status_filter_module](https://git.hanada.info/hanada/ngx_http_rewrite_status_filter_module) | Rewrites response status codes. |
+| [ngx_http_secure_link_hash_module](https://git.hanada.info/hanada/ngx_http_secure_link_hash_module) | Verifies hash-signed requests with optional time limits. |
+| [ngx_http_secure_link_hmac_module](https://git.hanada.info/hanada/ngx_http_secure_link_hmac_module) | Verifies HMAC-signed requests with optional time limits. |
+| [ngx_http_secure_link_sign_module](https://git.hanada.info/hanada/ngx_http_secure_link_sign_module) | Verifies RSA, RSA-PSS, ECDSA, and Ed25519 signatures with optional time limits. |
+| [ngx_http_security_headers_filter_module](https://git.hanada.info/hanada/ngx_http_security_headers_filter_module) | Adds security response headers, including HSTS. |
+| [ngx_http_server_redirect_module](https://git.hanada.info/hanada/ngx_http_server_redirect_module) | Redirects request processing to another virtual server. |
+| [ngx_http_sorted_args_module](https://git.hanada.info/hanada/ngx_http_sorted_args_module) | Sorts and filters query arguments for normalized URLs and cache keys. |
+| [ngx_http_ssl_strict_server_name_module](https://git.hanada.info/hanada/ngx_http_ssl_strict_server_name_module) | Controls the check between negotiated TLS SNI and the HTTP request host, with conditional configuration. |
+| [ngx_http_sysguard_module](https://git.hanada.info/hanada/ngx_http_sysguard_module) | Limits request processing according to system load, memory, CPU usage, and response time. |
+| [ngx_http_trim_filter_module](https://git.hanada.info/hanada/ngx_http_trim_filter_module) | Removes unnecessary HTML comments and whitespace, with optional inline JavaScript and CSS trimming. |
+| [ngx_http_ua_parser_module](https://git.hanada.info/hanada/ngx_http_ua_parser_module) | Parses User-Agent values into browser, operating system, and device information. |
+| [ngx_http_upstream_log_module](https://git.hanada.info/hanada/ngx_http_upstream_log_module) | Writes a separate log entry for each upstream attempt, with conditional logging and sampling. |
+| [ngx_http_weserv_module](https://github.com/weserv/images) | Resizes, transforms, and converts images using libvips. |
+| [ngx_lua_config_module](https://git.hanada.info/hanada/ngx_lua_config_module) | Exposes HTTP and Stream configuration values and upstream definitions through Lua APIs and nginx variables. |
+| [ngx_lua_events_module](https://github.com/Kong/lua-resty-events) | Supports publish/subscribe event delivery between nginx worker processes. |
+| [ngx_lua_load_var_index_module](https://git.hanada.info/hanada/ngx_lua_load_var_index_module) | Enables indexed access to HTTP and Stream nginx variables from Lua. |
+| [ngx_lua_upstream_state_module](https://git.hanada.info/hanada/ngx_lua_upstream_state_module) | Lets Lua populate HTTP and Stream upstream state, timing, and peer information. |
+| [ngx_ssl_fingerprint_module](https://git.hanada.info/hanada/ngx_ssl_fingerprint_module) | Exposes JA3 and JA4 TLS client fingerprints for HTTP and Stream, including HTTP/3. |
+| [ngx_stat_module](https://git.hanada.info/hanada/ngx_stat_module) | Aggregates configurable HTTP and Stream metrics by group and time window. |
+| [ngx_stream_access_control_module](https://git.hanada.info/hanada/ngx_stream_access_control_module) | Applies variable-based access rules to Stream sessions. |
+| [ngx_stream_error_log_write_module](https://git.hanada.info/hanada/ngx_stream_error_log_write_module) | Writes configured messages to the error log during Stream session processing. |
+| [ngx_stream_extra_variables_module](https://git.hanada.info/hanada/ngx_stream_extra_variables_module) | Exposes connection, session, and upstream information, including per-attempt timing and byte counts. |
+| [ngx_stream_label_module](https://git.hanada.info/hanada/ngx_stream_label_module) | Defines Stream configuration labels exposed as variables. |
+| [ngx_stream_log_set_module](https://git.hanada.info/hanada/ngx_stream_log_set_module) | Assigns variables before Stream access logs are written. |
+| [ngx_stream_lua_upstream_module](https://git.hanada.info/hanada/ngx_stream_lua_upstream_module) | Exposes Lua APIs for inspecting and changing Stream upstream peer state. |
+| [ngx_tcp_fingerprint_module](https://git.hanada.info/hanada/ngx_tcp_fingerprint_module) | Exposes passive TCP client fingerprints for HTTP and Stream. RTT collection is disabled in this bundle. |
+| [ngx_var_module](https://git.hanada.info/hanada/ngx_var_module) | Defines HTTP and Stream variables using string, number, encoding, cryptographic, time, and IP functions. |
 
 [Back to TOC](#table-of-contents)
 
-## ngx_http
+# Additional Features
 
-### Variables for timestamps and time spent on related operations
+The following sections describe extensions maintained in this bundle's patches.
 
-The module [ngx_http_extra_variables_module](https://git.hanada.info/hanada/ngx_http_extra_variables_module) must be compiled to use these variables.
+[Back to TOC](#table-of-contents)
 
-| Variable                               | Description |
-| ---                                    | ---         |
-| **$response_header_sent_msec**         | Response header sent timestamp in seconds with the milliseconds resolution. |
-| **$request_handling_time**             | Keeps time spent on handling request internally from receiving the request to sending the response header to the client. |
-| **$response_body_time**                | Keeps time spent on sending the response body to the client. |
-| **$request_header_lenth**              | Request header length. |
-| **$request_body_lenth**                | Request body length. |
+## Resolver
+
+Resolver extensions apply to HTTP, Stream and Mail.
+
+```nginx
+http {
+    nameserver dns {
+        server 192.0.2.53 weight=2;
+        server 192.0.2.54;
+        local /etc/resolv.conf level=2;
+        server 203.0.113.53 level=3;
+    }
+
+    resolver dns ipv6=off max_ttl=5m
+                 negative_valid=10s error_valid=1s stale_valid=5m;
+    resolver_timeout 5s;
+    resolver_next_nameserver error timeout rcode_servfail;
+}
+```
+
+### nameserver
+
+* **Syntax:** `nameserver name { ... }`
+* **Default:** —
+* **Context:** `http`, `stream`, `mail`
+
+Defines a group of DNS servers. Group names are local to their HTTP, Stream or Mail block. A `resolver` directive may reference a group before its definition.
+
+The block accepts `server` and `local`:
+
+```nginx
+server address [level=number] [weight=number]
+               [max_fails=number] [fail_timeout=time];
+local file [level=number] [weight=number]
+           [max_fails=number] [fail_timeout=time];
+```
+
+`local` reads nameserver addresses from a resolv.conf file when the configuration is loaded.
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `level` | `1` | Smaller levels are tried first on a cache miss. |
+| `weight` | `1` | Weight for round-robin selection within a level. |
+| `max_fails` | `0` | Transport failures before temporary exclusion; `0` disables exclusion. |
+| `fail_timeout` | `10s` | Failure counting window and exclusion time. |
+
+The default port is 53. Server hostnames are resolved when the configuration is loaded. If every server in the group is excluded, selection temporarily considers all servers available.
+
+### resolver
+
+Extends the [HTTP resolver](https://nginx.org/en/docs/http/ngx_http_core_module.html#resolver), [Stream resolver](https://nginx.org/en/docs/stream/ngx_stream_core_module.html#resolver) and [Mail resolver](https://nginx.org/en/docs/mail/ngx_mail_core_module.html#resolver) directives.
+
+A single server argument selects a nameserver group in the current HTTP, Stream or Mail block. If no group matches, nginx parses the argument as an address or hostname. Multiple server arguments and `local=on` retain address-list processing. Mail retains `resolver off`.
+
+The following optional parameters are added:
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `min_ttl=time` | `0` | Minimum positive-answer TTL. |
+| `max_ttl=time` | `0` | Maximum positive-answer TTL; `0` adds no limit. |
+| `negative_valid=time` | `0` | Maximum cache lifetime for NXDOMAIN and NODATA. |
+| `error_valid=time` | `0` | Maximum cache lifetime for final lookup failures. |
+| `stale_valid=time` | `0` | Additional time during which expired positive answers may be returned while refreshing in the background. |
+
+`valid` cannot be used with `min_ttl` or `max_ttl`, including `valid=0`. Negative and failure lifetimes use the smallest applicable TTL, their configured limit and a nonzero `valid`. Negative TTLs use the smaller SOA TTL and MINIMUM value. A zero negative TTL is not cached.
+
+Stale answers remain available until their original validity plus `stale_valid`; access and failed refreshes do not extend that deadline. A successful refresh replaces the cached answer, and a negative result invalidates the previous positive answer. All levels of a resolver share the same cache.
+
+### resolver_next_nameserver
+
+* **Syntax:** `resolver_next_nameserver condition ...;`
+* **Syntax:** `resolver_next_nameserver off;`
+* **Default:** `resolver_next_nameserver error timeout;`
+* **Context:** HTTP `http`, `server`, `location`, `upstream`; Stream `stream`, `server`, `upstream`; Mail `mail`, `server`
+
+Specifies when another DNS server may be tried. Conditions are `error`, `timeout`, `invalid_response`, `nodata`, `rcode_formerr`, `rcode_servfail`, `rcode_nxdomain`, `rcode_notimp` and `rcode_refused`. RCODEs greater than 5 use `invalid_response`.
+
+`off` disables retries while allowing the current attempt to complete. It takes precedence over any other conditions set at the same configuration level. Truncation fallback to TCP uses the same attempt. Exhausting a round does not start another round until the resend timer expires.
+
+### resolver_next_nameserver_timeout
+
+* **Syntax:** `resolver_next_nameserver_timeout time;`
+* **Default:** `resolver_next_nameserver_timeout 0;`
+* **Context:** HTTP `http`, `server`, `location`, `upstream`; Stream `stream`, `server`, `upstream`; Mail `mail`, `server`
+
+Limits the time during which another nameserver may be tried. `0` disables the limit. The window starts with the first attempt and is not restarted for another level, CNAME or SRV target. `resolver_timeout` retains its existing query timeout semantics.
+
+### resolver_next_nameserver_tries
+
+* **Syntax:** `resolver_next_nameserver_tries number;`
+* **Default:** `resolver_next_nameserver_tries 0;`
+* **Context:** HTTP `http`, `server`, `location`, `upstream`; Stream `stream`, `server`, `upstream`; Mail `mail`, `server`
+
+Limits attempts, including the first attempt, retransmissions and CNAME/SRV follow-up queries. `0` disables the limit. Waiters sharing a query retain independent limits.
+
+[Back to TOC](#table-of-contents)
+
+## lua-resty-core
+
+### ngx.resolve
+
+```lua
+local addrs, err = ngx.resolve("backend.example", "ipv4")
+```
+
+Returns the resolved addresses as an array of `{ addr = "...", type = 4 | 6 }` entries, or `nil, err` on lookup failure. The optional family is `ipv4`, `ipv6`, or `both` (the default). It filters the returned addresses. The active `resolver` configuration controls which DNS queries are sent.
+
+```lua
+local name, err = ngx.resolve("192.0.2.1", "ptr")
+```
+
+The `ptr` mode accepts an IPv4 or IPv6 address and returns its PTR hostname, or `nil, err` on lookup failure.
+
+Uses the resolver and timeout of the current HTTP location or Stream server. Available in HTTP server rewrite, rewrite, preaccess, access, precontent, and content, in Stream access, preread, and content, and in timers in both subsystems. Resolve upstream names before entering the balancer phase.
 
 [Back to TOC](#table-of-contents)
 
 ## ngx_http_lua_module
+
+### ngx.fs
+
+Available in HTTP and Stream Lua contexts that can yield, including timers. The optional pool name defaults to `default_lua_io`. Define it with [thread_pool](https://nginx.org/en/docs/ngx_core_module.html#thread_pool).
+
+| Operation | Description |
+| --- | --- |
+| `ngx.fs.read_file(path, max_bytes[, pool])` | Reads a regular file in one thread-pool task. A `nil` limit uses the file size at open time. |
+| `ngx.fs.append_file(path, data[, pool])` | Opens, appends, and closes in one thread-pool task. Returns the number of bytes written. |
+| `ngx.fs.open(path[, mode[, pool]])` | Opens a file in mode `r`, `w`, `a`, `r+`, or `w+`. |
+| `file:read(size[, offset])` | Reads up to `size` bytes from the given offset. Returns an empty string at EOF. |
+| `file:write(data[, offset])` | Writes from the given offset and returns the number of bytes written. Append mode writes at the end. |
+| `file:close()` | Closes the handle. |
+| `ngx.fs.stat(path[, pool])` | Returns file metadata. For symbolic links, returns the link's metadata. |
+
+Offsets default to zero. Read sizes and offsets must be integers. Reads return Lua strings up to the LuaJIT string-size limit. I/O failures return `nil, err`. Append and write return the byte count from a single write without fsync. `file:close()` runs synchronously and invalidates the handle even if the close reports an error.
 
 ### preaccess_by_lua_block
 
@@ -463,15 +545,13 @@ This directive is ported from [Angie](https://github.com/webserver-llc/angie/com
 
 ### Support for https_allow_http in listen directive
 
-Allows the server to accept both HTTP and HTTPS requests on the same port, which is useful for scenarios where special ports are used. The original work is from [Tengine](https://github.com/alibaba/tengine).
-
 * **Syntax:** *listen address[:port] [ssl] **[https_allow_http]** ...;*
 
 * **Default:** *listen *:80 | *:8000;*
 
 * **Context:** *server*
 
-When both the ssl and https_allow_http parameters are enabled for the listen directive, both https and http requests will be allowed.
+Refer to [listen](https://nginx.org/en/docs/http/ngx_http_core_module.html#listen) for the original directive behavior. Adds the `https_allow_http` parameter, which allows a listener configured with `ssl` to accept both HTTP and HTTPS. The extension is from [Tengine](https://github.com/alibaba/tengine).
 
 ### Enhancement of unique request id
 
@@ -491,7 +571,7 @@ Specify the format of the request ID.
 
 * **Context:** *http, server, location*
 
-Specify the header name to be inherited by the request ID. If no header is specified, the request id will always be regenerated.
+Specifies the request header from which to inherit the request ID. The first matching header is used. Its value must contain 1 to 1024 bytes, using only ASCII letters, digits, periods (`.`), hyphens (`-`), and underscores (`_`). If the header is not configured, is missing, or has an invalid value, a new ID is generated using `request_id_algorithm`.
 
 ### Configurable default error pages
 
@@ -545,7 +625,7 @@ Specify whether to ignore an invalid range header. If enabled, invalid range hea
 
 * **Context:** *http, server, location, when*
 
-For the original usage, please refer to [error_page](https://nginx.org/en/docs/http/ngx_http_core_module.html#error_page) of nginx documentation.
+Refer to [error_page](https://nginx.org/en/docs/http/ngx_http_core_module.html#error_page) for the original directive behavior.
 
 Define conditions with `ngx_expr_module` and place each conditional error page in a `when` block. Multiple condition references in one `when` are ANDed; prefix a reference with `!` to negate it. Entries retain configuration order, so an earlier unconditional error page for the same status takes precedence over a later conditional entry.
 
@@ -557,7 +637,7 @@ when use_json_error {
 }
 ```
 
-These directives are inherited from the previous configuration level if and only if there are no error_page directives defined on the current level (including when subblocks).
+The previous configuration level is used when the current level has no entries or all of its `when` conditions are false. Any unconditional entry or matching condition selects the current level as a whole. If that level has no active mapping for the response status, no parent mapping is used. `no_error_pages` stops inheritance.
 
 ### More directives for not modified checking
 
@@ -619,33 +699,69 @@ loaded on demand at runtime, regardless of the selected mode.
 `ssl_certificate_cache` also applies to files loaded in `runtime` mode.
 The setting is inherited unless overridden.
 
+### Conditional ssl_reject_handshake
+
+* **Syntax:** *ssl_reject_handshake on | off;*
+
+* **Default:** *ssl_reject_handshake off;*
+
+* **Context:** *http, server, when*
+
+Refer to [ssl_reject_handshake](https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_reject_handshake) for the original directive behavior.
+
+Define conditions with `ngx_expr_module` and place conditional settings in `when` blocks.
+
+### ssl_delay_handshake
+
+* **Syntax:** *ssl_delay_handshake time;*
+
+* **Default:** *ssl_delay_handshake 0;*
+
+* **Context:** *http, server, when*
+
+Delays the TLS handshake by the specified time. The value can contain variables. The zero value disables the delay.
+
+The delay is applied before handshake rejection and counts toward the handshake timeout.
+
+> The directive is supported when using OpenSSL 1.1.1 or later, BoringSSL, and AWS-LC.
+
+```nginx
+http {
+    expr restricted str_eq $ssl_server_name restricted.example.com;
+    var $handshake_delay set 250ms;
+
+    when restricted {
+        ssl_delay_handshake $handshake_delay;
+        ssl_reject_handshake on;
+    }
+}
+```
+
 ### Optimizing TLS over TCP to reduce latency
 
 By initially sending small (1 TCP segment) sized records, we are able to avoid HoL blocking of the first byte. This means TTFB is sometime lower by a whole RTT.
 
 By sending increasingly larger records later in the connection, when HoL is not a problem, we reduce the overhead of TLS record (29 bytes per record with GCM/CHACHA-POLY).
 
-Start each connection with small records (1369 byte by default, it can be changed with ssl_dyn_rec_size_lo).
+Start each connection with small records (1369 bytes by default, configurable with `ssl_dynamic_record_low_size`).
 
-After a given number of records (40, change with ssl_dyn_rec_threshold) start sending larger records (4229, ssl_dyn_rec_size_hi).
+After a given number of records (40, configurable with `ssl_dynamic_record_threshold`), start sending larger records (4229 bytes, `ssl_dynamic_record_high_size`).
 
 Eventually after the same number of records, start sending the largest records (ssl_buffer_size).
 
-In case the connection idles for a given amount of time (1s, ssl_dyn_rec_timeout), the process repeats itself (i.e. begin sending small records again).
+In case the connection idles for a given amount of time (1s, `ssl_dynamic_record_timeout`), the process repeats itself (i.e. begin sending small records again).
 
-* **Syntax:** *ssl_dyn_rec on | off;*
+* **Syntax:** *ssl_dynamic_record on | off;*
 
-* **Default:** *ssl_dyn_rec off;*
+* **Default:** *ssl_dynamic_record off;*
 
 * **Context:** *http, server*
 
-Enable dynamic tls records.
+Enables dynamic TLS record sizing.
 
-Unlike the original patch, the directive name is changed from `ssl_dyn_rec_enable` to `ssl_dyn_rec`.
+* **Syntax:** *ssl_dynamic_record_timeout time;*
 
-* **Syntax:** *ssl_dyn_rec_timeout time;*
-
-* **Default:** *ssl_dyn_rec_timeout 1s;*
+* **Default:** *ssl_dynamic_record_timeout 1s;*
 
 * **Context:** *http, server*
 
@@ -653,43 +769,31 @@ We want the initial records to fit into one TCP segment so we don't get TCP HoL 
 
 A connection always starts with small records, but after a certain number of records have been sent, we increase the record size to reduce header overhead.
 
-After a connection has idled for a given timeout, begin the process from the start. The actual parameters are configurable. If ssl_dyn_rec_timeout is 0, we assume ssl_dyn_rec is off.
+After a connection has idled for the specified timeout, the process starts again with small records. A value of `0` disables dynamic TLS record sizing.
 
-* **Syntax:** *ssl_dyn_rec_size_lo number;*
+* **Syntax:** *ssl_dynamic_record_low_size size;*
 
-* **Default:** *ssl_dyn_rec_size_lo 1369;*
-
-* **Context:** *http, server*
-
-Default sizes for the dynamic record sizes are defined to fit maximal TLS + IPv6 overhead in a single TCP segment for lo and 3 segments for hi: 1369 = 1500 - 40 (IP) - 20 (TCP) - 10 (Time) - 61 (Max TLS overhead)
-
-* **Syntax:** *ssl_dyn_rec_size_hi number;*
-
-* **Default:** *ssl_dyn_rec_size_hi 4229;*
+* **Default:** *ssl_dynamic_record_low_size 1369;*
 
 * **Context:** *http, server*
 
-4229 = (1500 - 40 - 20 - 10) * 3 - 61
+Sets the initial record size, also used after an idle timeout. The default accounts for the maximum TLS and IPv6 overhead in one TCP segment: 1369 = 1500 - 40 (IP) - 20 (TCP) - 10 (Time) - 61 (TLS overhead). The size is limited to `ssl_buffer_size`.
 
-* **Syntax:** *ssl_dyn_rec_threshold number;*
+* **Syntax:** *ssl_dynamic_record_high_size size;*
 
-* **Default:** *ssl_dyn_rec_threshold 40;*
+* **Default:** *ssl_dynamic_record_high_size 4229;*
+
+* **Context:** *http, server*
+
+Sets the intermediate record size. The default accounts for three TCP segments: 4229 = (1500 - 40 - 20 - 10) * 3 - 61. The size is limited to `ssl_buffer_size`.
+
+* **Syntax:** *ssl_dynamic_record_threshold number;*
+
+* **Default:** *ssl_dynamic_record_threshold 40;*
 
 * **Context:** *http, server*
 
 Visit [ngx_http_tls_dyn_size](https://github.com/nginx-modules/ngx_http_tls_dyn_size) repository for more information.
-
-### Strict SNI validation
-
-Adds the validation step of SNI and Host header, and when the request violate the rule, it immediately return status 421 Misdirected Request.
-
-* **Syntax:** *ssl_strict_server_name on | off | mtls_only;*
-
-* **Default:** *ssl_strict_server_name mtls_only;*
-
-* **Context:** *http, server*
-
-Enable Strict SNI validation. When the request SNI and Host header are different. it immediately return status 421 Misdirected Request. `mtls_only` is used to enable Strict SNI validation only with `ssl_verify_client` enabled.
 
 ### Variables about SSL handshake timestamps and time spent
 
@@ -713,7 +817,9 @@ New variables are introduced to get the start timestamp, end timestamp, and time
 
 * **Context:** *http, server, location, when*
 
-Enables or disables response slicing. When `ngx_expr_module` is compiled, this directive can be placed in a `when` block. Slicing is performed only when this directive is enabled, `slice_size` is nonzero, and no `slice_bypass` expression evaluates to a nonempty value other than `0`.
+Refer to [slice](https://nginx.org/en/docs/http/ngx_http_slice_module.html#slice) for the original directive behavior. The original size argument is moved to `slice_size`. This directive accepts `on` or `off` and supports conditional configuration through `when`.
+
+When slicing is enabled, multipart byte-range requests are supported, including reordered and overlapping ranges.
 
 ### slice_size
 
@@ -723,7 +829,7 @@ Enables or disables response slicing. When `ngx_expr_module` is compiled, this d
 
 * **Context:** *http, server, location*
 
-Sets the size of each slice. It retains the behavior and size syntax of the original `slice` directive. A value of `0` disables slicing regardless of the selected `slice` value.
+Sets the size of each slice, using the size syntax of the original [slice](https://nginx.org/en/docs/http/ngx_http_slice_module.html#slice) directive. A value of `0` disables slicing regardless of the selected `slice` value.
 
 ### slice_bypass
 
@@ -800,7 +906,7 @@ when replace_origin {
 sub_filter_once off;
 ```
 
-All unconditional pairs and all pairs whose conditions match are applied together in configuration order. The native inheritance rule is unchanged: pairs are inherited from the previous configuration level only when the current level defines no `sub_filter` pair, including pairs inside `when`.
+The previous configuration level is used when the current level has no pairs or all of its `when` conditions are false. Otherwise, its unconditional pairs and pairs with matching conditions form the replacement set. A search string that is absent from the response or evaluates to an empty value does not cause a fallback to parent pairs; an empty replacement removes the matching text.
 
 [Back to TOC](#table-of-contents)
 
@@ -827,22 +933,6 @@ The setting is inherited unless overridden.
 
 > `grpc_ssl_certificate_load` and `uwsgi_ssl_certificate_load` are also available with the same behavior.
 
-### Proxy filter Framework
-
-Provides a hook-based filter framework for proxy requests, allowing third-party modules to attach custom handlers at various phases of the upstream proxy lifecycle. See [ngx_http_proxy_filter_module](https://git.hanada.info/hanada/ngx_http_proxy_filter_module) for details and usage.
-
-Modules currently integrated with this framework:
-
-* [ngx_http_proxy_auth_aws_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_aws_module)
-* [ngx_http_proxy_auth_netstorage_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_netstorage_module)
-* [ngx_http_proxy_auth_basic_module](https://git.hanada.info/hanada/ngx_http_proxy_auth_basic_module)
-* [ngx_http_proxy_headers_control_module](https://git.hanada.info/hanada/ngx_http_proxy_headers_control_module)
-* [ngx_http_proxy_set_module](https://git.hanada.info/hanada/ngx_http_proxy_set_module)
-
-### gRPC filter Framework
-
-Provides the corresponding hook-based framework for gRPC upstream requests. The [ngx_http_grpc_headers_control_module](https://git.hanada.info/hanada/ngx_http_grpc_headers_control_module) and [ngx_http_grpc_set_module](https://git.hanada.info/hanada/ngx_http_grpc_set_module) use it to modify gRPC request and response headers and to set variables during response header processing.
-
 ### gRPC upstream request header variables
 
 The `$grpc_http_<name>` variables expose the final request headers sent to a gRPC upstream after applying `grpc_set_header`, passed client headers, and gRPC request filters. Header names are converted to lowercase with dashes represented by underscores. Multiple values are joined with a comma and space. `$grpc_http_host` exposes the final `:authority` value.
@@ -855,9 +945,7 @@ The `$grpc_http_<name>` variables expose the final request headers sent to a gRP
 
 * **Context:** *location, if in location*
 
-Allows `grpc_pass` to specify an upstream URI. For a static address, the part of the normalized request URI matching the current location is replaced by the configured URI, using the same replacement semantics as `proxy_pass`. A `grpc_pass` value containing variables uses its evaluated URI directly.
-
-The generated URI is used for both the gRPC `:path` pseudo-header and the upstream request URI exposed to proxy filters. `grpc_set_header` cannot override `:path`.
+Refer to [grpc_pass](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_pass) for the original directive behavior. Adds an optional upstream URI, with the URI replacement rules of [proxy_pass](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass). A value containing variables uses its evaluated URI directly.
 
 ```nginx
 location /api/ {
@@ -883,7 +971,7 @@ grpc_method POST;
 
 ### Conditional upstream directives
 
-When `ngx_expr_module` is compiled, the built-in upstream directives listed below can also be declared in applicable `when` blocks. HTTP directives support the `http`, `server`, and `location` levels, while stream proxy directives support the `stream` and `server` levels. Their native syntax, defaults, and inheritance behavior are unchanged.
+The upstream directives listed below support conditional configuration through `when` with `ngx_expr_module`. Refer to the linked nginx documentation for the original behavior of native directives. Conditional configuration does not change a directive's syntax or default value.
 
 For directives that select one effective value, declarations are evaluated in configuration order: the first unconditional declaration or declaration with a matching condition wins. A conditional declaration does not take precedence merely because it has a condition, so put conditional cases before an unconditional fallback.
 
@@ -897,55 +985,69 @@ when long_read {
 proxy_read_timeout 30s;
 ```
 
+For `proxy_redirect` and `proxy_cookie_domain`, `proxy_cookie_path`,
+`proxy_cookie_flags`, `proxy_cookie_value`, and `proxy_cookie_max_age`, enabled
+rules are checked in declaration order when processing the upstream response.
+The previous configuration level is used only if no declaration at the current
+level is enabled. A rule that does not match its target does not cause a fallback
+to parent rules.
+
+A matching `off` declaration stops subsequent rules of that directive without
+changing the current target. It does not undo an earlier successful rewrite or
+disable other cookie directives. Combining `off` and ordinary rules under the
+same condition remains a configuration error, including across split blocks.
+An explicit `proxy_redirect default` participates at its declaration position;
+the implicit default is not an additional fallback after enabled rules miss.
+
 The supported directives are listed explicitly below.
 
 | HTTP proxy | Stream proxy | fastcgi | scgi | uwsgi | grpc | memcached | tunnel |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `proxy_buffering` | — | `fastcgi_buffering` | `scgi_buffering` | `uwsgi_buffering` | — | — | — |
-| `proxy_cache_background_update` | — | `fastcgi_cache_background_update` | `scgi_cache_background_update` | `uwsgi_cache_background_update` | — | — | — |
+| [proxy_buffering](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering) | — | [fastcgi_buffering](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_buffering) | [scgi_buffering](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_buffering) | [uwsgi_buffering](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_buffering) | — | — | — |
+| [proxy_cache_background_update](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_background_update) | — | [fastcgi_cache_background_update](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_background_update) | [scgi_cache_background_update](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_background_update) | [uwsgi_cache_background_update](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_background_update) | — | — | — |
 | `proxy_cache_hide_cookies` | — | `fastcgi_cache_hide_cookies` | `scgi_cache_hide_cookies` | `uwsgi_cache_hide_cookies` | — | — | — |
-| `proxy_cache_lock` | — | `fastcgi_cache_lock` | `scgi_cache_lock` | `uwsgi_cache_lock` | — | — | — |
-| `proxy_cache_lock_age` | — | `fastcgi_cache_lock_age` | `scgi_cache_lock_age` | `uwsgi_cache_lock_age` | — | — | — |
-| `proxy_cache_lock_timeout` | — | `fastcgi_cache_lock_timeout` | `scgi_cache_lock_timeout` | `uwsgi_cache_lock_timeout` | — | — | — |
+| [proxy_cache_lock](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock) | — | [fastcgi_cache_lock](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_lock) | [scgi_cache_lock](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_lock) | [uwsgi_cache_lock](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_lock) | — | — | — |
+| [proxy_cache_lock_age](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock_age) | — | [fastcgi_cache_lock_age](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_lock_age) | [scgi_cache_lock_age](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_lock_age) | [uwsgi_cache_lock_age](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_lock_age) | — | — | — |
+| [proxy_cache_lock_timeout](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock_timeout) | — | [fastcgi_cache_lock_timeout](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_lock_timeout) | [scgi_cache_lock_timeout](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_lock_timeout) | [uwsgi_cache_lock_timeout](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_lock_timeout) | — | — | — |
 | `proxy_cache_max_length` | — | `fastcgi_cache_max_length` | `scgi_cache_max_length` | `uwsgi_cache_max_length` | — | — | — |
-| `proxy_cache_max_range_offset` | — | `fastcgi_cache_max_range_offset` | `scgi_cache_max_range_offset` | `uwsgi_cache_max_range_offset` | — | — | — |
-| `proxy_cache_methods` | — | `fastcgi_cache_methods` | `scgi_cache_methods` | `uwsgi_cache_methods` | — | — | — |
+| [proxy_cache_max_range_offset](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_max_range_offset) | — | [fastcgi_cache_max_range_offset](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_max_range_offset) | [scgi_cache_max_range_offset](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_max_range_offset) | [uwsgi_cache_max_range_offset](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_max_range_offset) | — | — | — |
+| [proxy_cache_methods](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_methods) | — | [fastcgi_cache_methods](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_methods) | [scgi_cache_methods](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_methods) | [uwsgi_cache_methods](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_methods) | — | — | — |
 | `proxy_cache_min_length` | — | `fastcgi_cache_min_length` | `scgi_cache_min_length` | `uwsgi_cache_min_length` | — | — | — |
-| `proxy_cache_min_uses` | — | `fastcgi_cache_min_uses` | `scgi_cache_min_uses` | `uwsgi_cache_min_uses` | — | — | — |
-| `proxy_cache_use_stale` | — | `fastcgi_cache_use_stale` | `scgi_cache_use_stale` | `uwsgi_cache_use_stale` | — | — | — |
+| [proxy_cache_min_uses](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_min_uses) | — | [fastcgi_cache_min_uses](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_min_uses) | [scgi_cache_min_uses](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_min_uses) | [uwsgi_cache_min_uses](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_min_uses) | — | — | — |
+| [proxy_cache_use_stale](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_use_stale) | — | [fastcgi_cache_use_stale](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_use_stale) | [scgi_cache_use_stale](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_use_stale) | [uwsgi_cache_use_stale](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_use_stale) | — | — | — |
 | `proxy_cache_vary` | — | `fastcgi_cache_vary` | `scgi_cache_vary` | `uwsgi_cache_vary` | — | — | — |
-| `proxy_connect_timeout` | `proxy_connect_timeout` | `fastcgi_connect_timeout` | `scgi_connect_timeout` | `uwsgi_connect_timeout` | `grpc_connect_timeout` | `memcached_connect_timeout` | `tunnel_connect_timeout` |
-| — | `proxy_timeout` | — | — | — | — | — | — |
-| `proxy_cookie_domain` | — | — | — | — | — | — | — |
-| `proxy_cookie_flags` | — | — | — | — | — | — | — |
+| [proxy_connect_timeout](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout) | [proxy_connect_timeout](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_connect_timeout) | [fastcgi_connect_timeout](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_connect_timeout) | [scgi_connect_timeout](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_connect_timeout) | [uwsgi_connect_timeout](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_connect_timeout) | [grpc_connect_timeout](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_connect_timeout) | [memcached_connect_timeout](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_connect_timeout) | [tunnel_connect_timeout](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_connect_timeout) |
+| — | [proxy_timeout](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_timeout) | — | — | — | — | — | — |
+| [proxy_cookie_domain](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_domain) | — | — | — | — | — | — | — |
+| [proxy_cookie_flags](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_flags) | — | — | — | — | — | — | — |
 | `proxy_cookie_max_age` | — | — | — | — | — | — | — |
-| `proxy_cookie_path` | — | — | — | — | — | — | — |
+| [proxy_cookie_path](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_path) | — | — | — | — | — | — | — |
 | `proxy_cookie_value` | — | — | — | — | — | — | — |
-| `proxy_force_ranges` | — | `fastcgi_force_ranges` | `scgi_force_ranges` | `uwsgi_force_ranges` | — | — | — |
+| [proxy_force_ranges](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_force_ranges) | — | [fastcgi_force_ranges](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_force_ranges) | [scgi_force_ranges](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_force_ranges) | [uwsgi_force_ranges](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_force_ranges) | — | — | — |
 | `proxy_hide_cookie` | — | `fastcgi_hide_cookie` | `scgi_hide_cookie` | `uwsgi_hide_cookie` | — | — | — |
 | `proxy_ignore_cache_control` | — | `fastcgi_ignore_cache_control` | `scgi_ignore_cache_control` | `uwsgi_ignore_cache_control` | — | — | — |
-| `proxy_ignore_client_abort` | — | `fastcgi_ignore_client_abort` | `scgi_ignore_client_abort` | `uwsgi_ignore_client_abort` | — | — | — |
-| `proxy_ignore_headers` | — | `fastcgi_ignore_headers` | `scgi_ignore_headers` | `uwsgi_ignore_headers` | `grpc_ignore_headers` | — | — |
-| `proxy_limit_rate` | — | `fastcgi_limit_rate` | `scgi_limit_rate` | `uwsgi_limit_rate` | — | — | — |
-| `proxy_next_upstream` | `proxy_next_upstream` | `fastcgi_next_upstream` | `scgi_next_upstream` | `uwsgi_next_upstream` | `grpc_next_upstream` | `memcached_next_upstream` | `tunnel_next_upstream` |
-| `proxy_next_upstream_timeout` | `proxy_next_upstream_timeout` | `fastcgi_next_upstream_timeout` | `scgi_next_upstream_timeout` | `uwsgi_next_upstream_timeout` | `grpc_next_upstream_timeout` | `memcached_next_upstream_timeout` | `tunnel_next_upstream_timeout` |
-| `proxy_next_upstream_tries` | `proxy_next_upstream_tries` | `fastcgi_next_upstream_tries` | `scgi_next_upstream_tries` | `uwsgi_next_upstream_tries` | `grpc_next_upstream_tries` | `memcached_next_upstream_tries` | `tunnel_next_upstream_tries` |
-| `proxy_pass_request_body` | — | `fastcgi_pass_request_body` | `scgi_pass_request_body` | `uwsgi_pass_request_body` | — | — | — |
-| `proxy_pass_request_headers` | — | `fastcgi_pass_request_headers` | `scgi_pass_request_headers` | `uwsgi_pass_request_headers` | — | — | — |
-| `proxy_read_timeout` | — | `fastcgi_read_timeout` | `scgi_read_timeout` | `uwsgi_read_timeout` | `grpc_read_timeout` | `memcached_read_timeout` | `tunnel_read_timeout` |
-| `proxy_request_buffering` | — | `fastcgi_request_buffering` | `scgi_request_buffering` | `uwsgi_request_buffering` | — | — | — |
-| `proxy_send_timeout` | — | `fastcgi_send_timeout` | `scgi_send_timeout` | `uwsgi_send_timeout` | `grpc_send_timeout` | `memcached_send_timeout` | `tunnel_send_timeout` |
-| `proxy_http_version` | — | — | — | — | — | — | — |
-| `proxy_method` | — | — | — | — | `grpc_method` | — | — |
-| `proxy_redirect` | — | — | — | — | — | — | — |
-| `proxy_ssl_name` | `proxy_ssl_name` | — | — | `uwsgi_ssl_name` | `grpc_ssl_name` | — | — |
-| `proxy_ssl_server_name` | `proxy_ssl_server_name` | — | — | `uwsgi_ssl_server_name` | `grpc_ssl_server_name` | — | — |
+| [proxy_ignore_client_abort](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ignore_client_abort) | — | [fastcgi_ignore_client_abort](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_ignore_client_abort) | [scgi_ignore_client_abort](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_ignore_client_abort) | [uwsgi_ignore_client_abort](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_ignore_client_abort) | — | — | — |
+| [proxy_ignore_headers](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ignore_headers) | — | [fastcgi_ignore_headers](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_ignore_headers) | [scgi_ignore_headers](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_ignore_headers) | [uwsgi_ignore_headers](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_ignore_headers) | [grpc_ignore_headers](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_ignore_headers) | — | — |
+| [proxy_limit_rate](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_limit_rate) | — | [fastcgi_limit_rate](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_limit_rate) | [scgi_limit_rate](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_limit_rate) | [uwsgi_limit_rate](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_limit_rate) | — | — | — |
+| [proxy_next_upstream](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_next_upstream) | [proxy_next_upstream](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_next_upstream) | [fastcgi_next_upstream](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_next_upstream) | [scgi_next_upstream](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_next_upstream) | [uwsgi_next_upstream](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_next_upstream) | [grpc_next_upstream](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_next_upstream) | [memcached_next_upstream](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_next_upstream) | [tunnel_next_upstream](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_next_upstream) |
+| [proxy_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_next_upstream_timeout) | [proxy_next_upstream_timeout](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_next_upstream_timeout) | [fastcgi_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_next_upstream_timeout) | [scgi_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_next_upstream_timeout) | [uwsgi_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_next_upstream_timeout) | [grpc_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_next_upstream_timeout) | [memcached_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_next_upstream_timeout) | [tunnel_next_upstream_timeout](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_next_upstream_timeout) |
+| [proxy_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_next_upstream_tries) | [proxy_next_upstream_tries](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_next_upstream_tries) | [fastcgi_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_next_upstream_tries) | [scgi_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_next_upstream_tries) | [uwsgi_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_next_upstream_tries) | [grpc_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_next_upstream_tries) | [memcached_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_next_upstream_tries) | [tunnel_next_upstream_tries](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_next_upstream_tries) |
+| [proxy_pass_request_body](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass_request_body) | — | [fastcgi_pass_request_body](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_pass_request_body) | [scgi_pass_request_body](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_pass_request_body) | [uwsgi_pass_request_body](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_pass_request_body) | — | — | — |
+| [proxy_pass_request_headers](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass_request_headers) | — | [fastcgi_pass_request_headers](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_pass_request_headers) | [scgi_pass_request_headers](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_pass_request_headers) | [uwsgi_pass_request_headers](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_pass_request_headers) | — | — | — |
+| [proxy_read_timeout](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout) | — | [fastcgi_read_timeout](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_read_timeout) | [scgi_read_timeout](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_read_timeout) | [uwsgi_read_timeout](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout) | [grpc_read_timeout](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_read_timeout) | [memcached_read_timeout](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_read_timeout) | [tunnel_read_timeout](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_read_timeout) |
+| [proxy_request_buffering](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_request_buffering) | — | [fastcgi_request_buffering](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_request_buffering) | [scgi_request_buffering](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_request_buffering) | [uwsgi_request_buffering](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_request_buffering) | — | — | — |
+| [proxy_send_timeout](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_send_timeout) | — | [fastcgi_send_timeout](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_send_timeout) | [scgi_send_timeout](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_send_timeout) | [uwsgi_send_timeout](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_send_timeout) | [grpc_send_timeout](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_send_timeout) | [memcached_send_timeout](https://nginx.org/en/docs/http/ngx_http_memcached_module.html#memcached_send_timeout) | [tunnel_send_timeout](https://nginx.org/en/docs/http/ngx_http_tunnel_module.html#tunnel_send_timeout) |
+| [proxy_http_version](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_http_version) | — | — | — | — | — | — | — |
+| [proxy_method](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_method) | — | — | — | — | `grpc_method` | — | — |
+| [proxy_redirect](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_redirect) | — | — | — | — | — | — | — |
+| [proxy_ssl_name](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ssl_name) | [proxy_ssl_name](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_ssl_name) | — | — | [uwsgi_ssl_name](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_ssl_name) | [grpc_ssl_name](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_ssl_name) | — | — |
+| [proxy_ssl_server_name](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ssl_server_name) | [proxy_ssl_server_name](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_ssl_server_name) | — | — | [uwsgi_ssl_server_name](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_ssl_server_name) | [grpc_ssl_server_name](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_ssl_server_name) | — | — |
 
 ### Support for inheritance in "proxy_set_header" and its friends
 
-Introduces the `proxy_set_header_inherit` directive which blocks the merge inheritance in receiving contexts when set to off. The purpose of the added mechanics is to reduce repetition within the nginx configuration for universally set (or boilerplate) request headers, while maintaining flexibility to set additional headers for specific paths. The original patch is from [[PATCH] Added merge inheritance to proxy_set_header](https://mailman.nginx.org/pipermail/nginx-devel/2023-November/XUGFHDLSLRTFLWIBYPSE7LTXFJHNZE3E.html).
+Refer to [proxy_set_header](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_set_header), [grpc_set_header](https://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_set_header), [fastcgi_param](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_param), [scgi_param](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_param), and [uwsgi_param](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_param) for the original directive behavior. The switches below allow declarations to be merged with those inherited from the previous configuration level.
 
-There is no change in behavior for existing configurations.
+The extension is based on [[PATCH] Added merge inheritance to proxy_set_header](https://mailman.nginx.org/pipermail/nginx-devel/2023-November/XUGFHDLSLRTFLWIBYPSE7LTXFJHNZE3E.html).
 
 * **Syntax:** *proxy_set_header_inherit on | off;*
 
@@ -969,7 +1071,7 @@ Allows the merge inheritance of fastcgi_param in receiving contexts.
 
 ### Enhancement of upstream cookie handler
 
-In addition to the native `proxy_cookie_domain`, `proxy_cookie_flags`, and `proxy_cookie_path` directives, this bundle provides directives for rewriting cookie values and expiration times.
+Refer to [proxy_cookie_domain](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_domain), [proxy_cookie_flags](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_flags), and [proxy_cookie_path](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cookie_path) for the original directive behavior. The directives below add cookie value and expiration rewriting.
 
 * **Syntax:** *proxy_cookie_value off;*
 *proxy_cookie_value cookie value replacement;*
@@ -982,12 +1084,23 @@ Rewrites the value of a cookie in a proxied response. Plain cookie names are mat
 
 For a plain `value`, the matching prefix is replaced and the rest of the cookie value is preserved. A value starting with `~` uses a case-sensitive regular expression, while `~*` uses a case-insensitive regular expression. The `replacement` can contain variables and can reference captures from the value regular expression.
 
+A bare value such as `sid` is a cookie with an empty name and the value `sid`.
+It is distinct from `sid=`, which has the name `sid` and an empty value.
+Use `""` as the cookie name to match nameless cookies consistently in
+`proxy_hide_cookie`, `proxy_cookie_value`, `proxy_cookie_max_age`, and
+`proxy_cookie_flags`. Rewriting retains the bare or `=value` form; an empty
+name with an empty replacement value is serialized as `=`.
+
 ```nginx
 proxy_cookie_value sessionid old- new-;
 proxy_cookie_value ~^session_ ~*^old-(.+)$ new-$1;
 ```
 
-Several `proxy_cookie_value` directives can be configured at the same level. The first rule with a matching cookie name is selected. The `off` parameter cancels rules inherited from the previous configuration level.
+Several `proxy_cookie_value` directives can be configured at the same level.
+The first rule matching both the cookie name and value is selected. A value
+mismatch continues to the next rule; a successful rewrite is not processed
+again by subsequent rules. The `off` parameter cancels rules inherited from
+the previous configuration level.
 
 * **Syntax:** *proxy_cookie_max_age off;*
 *proxy_cookie_max_age cookie time;*
@@ -1019,6 +1132,11 @@ This bundle also adds controls for hiding upstream cookies by name and suppressi
 
 Sets "Set-Cookie" fields that will not be passed by cookie name.
 
+All unconditional declarations and declarations with matching `when` conditions
+at the current level are checked in declaration order. Declarations from the
+previous level are used only when none at the current level are enabled; a
+cookie name mismatch does not cause a fallback to the previous level.
+
 See also the [proxy_hide_header](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_hide_header) directive.
 
 > fastcgi_hide_cookie, scgi_hide_cookie and uwsgi_hide_cookie directives are also available.
@@ -1033,17 +1151,35 @@ Prevents Set-Cookie headers from being passed when the response is served from c
 
 > fastcgi_cache_hide_cookies, scgi_cache_hide_cookies and uwsgi_cache_hide_cookies directives are also available.
 
+### Persistent cache zones
+
+Refer to [proxy_cache_path](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_path), [fastcgi_cache_path](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_path), [scgi_cache_path](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_path), and [uwsgi_cache_path](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_path) for the original directive behavior.
+
+The added `keys_state=file` parameter saves the cache keys zone on graceful shutdown and restores it on the next startup:
+
+```nginx
+proxy_cache_path /var/cache/nginx/content
+                 keys_zone=content:10m
+                 keys_state=/var/lib/nginx/content.zone;
+```
+
+Use a separate state file for each zone and keep its configured size
+unchanged when restoring it. The state directory must exist and be writable
+by the nginx master process. A reload keeps the live zone; a graceful stop
+such as `nginx -s quit` saves it. `SIGKILL` does not save a snapshot.
+
+`fastcgi_cache_path`, `scgi_cache_path`, and `uwsgi_cache_path` support
+the same parameter.
+
 ### Enhancement of upstream cache control
 
-This bundle handles upstream Cache-Control directives closer to RFC-defined shared-cache semantics:
+Refer to [proxy_cache_valid](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_valid), [proxy_cache_use_stale](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_use_stale), and [proxy_ignore_headers](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ignore_headers) for the original cache behavior.
+
+This bundle changes upstream Cache-Control handling as follows:
 
 * `no-cache`, `max-age=0`, and `s-maxage=0` responses can be stored as immediately stale cache entries instead of being treated as uncacheable.
 * `no-cache`, `s-maxage`, `must-revalidate`, and `proxy-revalidate` require revalidation before an expired cached response can be reused.
 * `no-store` and `private` responses remain uncacheable unless the corresponding Cache-Control field is ignored.
-
-Compared with official nginx, this means `no-cache`, `max-age=0`, and `s-maxage=0` responses can still create cache files, while responses requiring revalidation will not be served stale through `proxy_cache_use_stale`, `stale-while-revalidate`, `stale-if-error`, or configured stale defaults.
-
-Introduces some new cache-related directives to enhance control over upstream cache behavior.
 
 * **Syntax:** *proxy_ignore_cache_control field ...;*
 
@@ -1097,7 +1233,7 @@ The stale-while-revalidate extension of the Cache-Control header field permits u
 
 * **Syntax:** *proxy_cache_types mime-type ...;*
 
-* **Default:** *proxy_cache_types text/html;*
+* **Default:** `proxy_cache_types *;`
 
 * **Context:** *http, server, location*
 
@@ -1111,8 +1247,7 @@ Enables upstream cache with the specified MIME types in addition to “text/html
 
 * **Context:** *http, server, location*
 
-Refer to [proxy_cache_valid](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_valid).
-This directive has been changed to support configuring the cache time as a variable. Other behaviors remain unchanged.
+Refer to [proxy_cache_valid](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_valid) for the original directive behavior. The `time` parameter can contain variables.
 
 * **Syntax:** *proxy_cache_vary on | off | string;*
 
@@ -1161,34 +1296,6 @@ Specifies the maximun response length that can be cached. Only the size of Conte
 [Back to TOC](#table-of-contents)
 
 ## ngx_http_upstream_module
-
-### Extra variables for upstream information
-
-The module [ngx_http_extra_variables_module](https://git.hanada.info/hanada/ngx_http_extra_variables_module) must be compiled to use these variables.
-
-| Variable                                  | Description |
-| ---                                       | ---         |
-| **$upstream_method**                      | Upstream method, usually “GET” or “POST”. |
-| **$upstream_start_msec**                  | Keeps timestamp of upstream starts; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_start_msec**             | Keeps timestamp of latest upstream starts; the time is kept in seconds with millisecond resolution. |
-| **$upstream_ssl_start_msec**              | Keeps timestamp of upstream ssl handshake starts; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_ssl_start_msec**         | Keeps timestamp of latest upstream ssl handshake starts; the time is kept in seconds with millisecond resolution. |
-| **$upstream_send_start_msec**             | Keeps timestamp of upstream request send starts; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_send_start_msec**        | Keeps timestamp of latest upstream request send starts; the time is kept in seconds with millisecond resolution. |
-| **$upstream_send_end_msec**               | Keeps timestamp of upstream request send ends; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_send_end_msec**          | Keeps timestamp of latest upstream request send ends; the time is kept in seconds with millisecond resolution. |
-| **$upstream_header_msec**                 | Keeps timestamp of upstream response header sent; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_header_msec**            | Keeps timestamp of latest upstream response header sent; the time is kept in seconds with millisecond resolution. |
-| **$upstream_end_msec**                    | Keeps timestamp of upstream response sent or abnormal interruption; the time is kept in seconds with millisecond resolution. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_end_msec**               | Keeps timestamp of latest upstream response sent or abnormal interruption; the time is kept in seconds with millisecond resolution. |
-| **$upstream_transport_connect_time**      | Keeps time spent on establishing a connection with the upstream server; the time is kept in seconds with millisecond resolution. In case of SSL, does not include time spent on handshake. Times of several connections are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_transport_connect_time** | Keeps time spent on establishing a connection with the upstream server; the time is kept in seconds with millisecond resolution. In case of SSL, does not include time spent on handshake. |
-| **$upstream_ssl_time**                    | Keeps time spent on upstream ssl handshake; the time is kept in seconds with millisecond resolution. Note that this timing starts only after receiving the upstream request header. Times of several ssl connections are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_ssl_time**               | Keeps time spent on latest upstream ssl handshake; the time is kept in seconds with millisecond resolution. Note that this timing starts only after receiving the upstream request header. |
-| **$upstream_send_time**                   | Keeps time spent on sending request to the upstream server; the time is kept in seconds with millisecond resolution. Times of several send requests are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_send_time**              | Keeps time spent on sending request to the latest upstream server; the time is kept in seconds with millisecond resolution. |
-| **$upstream_read_time**                   | Keeps time spent on reading response from the upstream server; the time is kept in seconds with millisecond resolution. Note that this timing starts only after receiving the upstream request header. Times of several responses are separated by commas and colons like addresses in the $upstream_addr variable. |
-| **$upstream_last_read_time**              | Keeps time spent on reading response from the latest upstream server; the time is kept in seconds with millisecond resolution. Note that this timing starts only after receiving the upstream request header. |
 
 ### Upstream errors
 
@@ -1240,24 +1347,20 @@ upstream state is created are retained and included in the same sequence.
 
 ### Configuring real client IP with multiple request headers
 
-* **Syntax:** *real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;*
+* **Syntax:** *real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol [...];*
 
 * **Default:** *real_ip_header X-Real-IP;*
 
 * **Context:** *http, server, location*
 
-Defines the request header fields whose value will be used to replace the client address. 
-
-If multiple request fields are defined, the header values ​​will be checked in the order defined in the configuration, and the first header with a valid value will be used:
+Refer to [real_ip_header](https://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header) for the original directive behavior. Adds support for multiple sources, checked in configuration order. The first source containing a valid address is used:
 
 ```nginx
 real_ip_header X-Real-IP Cdn-Src-Ip X-Forwarded-For;
 ```
-The values ​​of the above headers will be checked in turn until a valid value is found.
+The connection peer must be trusted by [set_real_ip_from](https://nginx.org/en/docs/http/ngx_http_realip_module.html#set_real_ip_from). Comma-separated addresses in all header fields follow [real_ip_recursive](https://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_recursive). Once an address is obtained, the remaining sources are not checked. `X-Forwarded-For` processes multiple header lines; other fields use the first matching line.
 
-The request header field value that contains an optional port is also used to replace the client port. The address and port should be specified according to RFC 3986.
-
-The proxy_protocol parameter changes the client address to the one from the PROXY protocol header. The PROXY protocol must be previously enabled by setting the proxy_protocol parameter in the listen directive.
+Repeated directives append sources in declaration order. Sources are inherited only when no `real_ip_header` directive is configured at the current level.
 
 [Back to TOC](#table-of-contents)
 
@@ -1265,11 +1368,11 @@ The proxy_protocol parameter changes the client address to the one from the PROX
 
 The original work is from [SEnginx](https://github.com/NeusoftSecurity/SEnginx) and [nginx-if](https://github.com/pei-jikui/nginx-if).
 
-Extends the `if` directive of the original rewrite module. It has the following features:
+Refer to [if](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#if) for the original directive behavior. The extensions below add operators, combined conditions, and control-flow directives.
 
 ### Additional operators for the "if" directive
 
-Except for the original `if` condition operators, also supports:
+Adds the following operators to [if](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#if):
 * `<`
 * `>`
 * `==` (numeric equality)
@@ -1288,9 +1391,7 @@ The numeric comparison operators support decimals and negative numbers. Non-nume
 
 * **Context:** *server, location*
 
-Supports the use of `&&` and `||` operators in if.
-
-Supports parenthesis-based subconditions.
+Refer to [if](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#if) for the original directive behavior. Adds `&&`, `||`, and parentheses for combining conditions.
 
 Example:
 ```nginx
@@ -1354,109 +1455,39 @@ location @two {
 
 [Back to TOC](#table-of-contents)
 
-## ngx_http_gunzip_module
-
-This is a simple patch modifying the NGINX gunzip filter module to force inflate compressed responses. This is desirable in the context of an upstream source that sends responses gzipped. Please understand this will decompress all content, so you want to specify its use as specific as possible to avoid decompressing content that you otherwise would want left untouched.
-
-* It maintains transfering gzipped content between upstream server(s) and nginx, thus reducing network bandwidth.
-* Some modules require the upstream content to be uncompressed to work properly.
-* It allows nginx to recompress the data (i.e. brotli) before sending to the client.
-
-The original patch is from [A patch to force the gunzip filter module work](http://mailman.nginx.org/pipermail/nginx-devel/2013-January/003276.html). The original author is Weibin Yao.
-
-The gunzip module is not built by default, you must specify --with-http_gunzip_module when compiling nginx.
-
-### Conditional gunzip
-
-* **Syntax:** *gunzip on | off;*
-
-* **Default:** *gunzip off;*
-
-* **Context:** *http, server, location, when*
-
-Enables or disables decompression of gzip responses for clients that do not support gzip.
-
-### Support for forced gzip decompression
-
-* **Syntax:** *gunzip_force on | off;*
-
-* **Default:** *gunzip_force off;*
-
-* **Context:** *http, server, location, when*
-
-When enabled, decompresses gzip responses without checking whether the client accepts gzip. Responses without `Content-Encoding: gzip` are not affected.
-
-[Back to TOC](#table-of-contents)
-
-## ngx_http_gzip_filter_module
-
-### Conditional gzip
-
-* **Syntax:** *gzip on | off;*
-
-* **Default:** *gzip off;*
-
-* **Context:** *http, server, location, when*
-
-Refer to [gzip](https://nginx.org/en/docs/http/ngx_http_gzip_module.html#gzip) for the original directive behavior. Supports conditional configuration.
-
-### Conditional gzip_comp_level
-
-* **Syntax:** *gzip_comp_level level;*
-
-* **Default:** *gzip_comp_level 1;*
-
-* **Context:** *http, server, location, when*
-
-Refer to [gzip_comp_level](https://nginx.org/en/docs/http/ngx_http_gzip_module.html#gzip_comp_level) for the original directive behavior. Supports conditional configuration.
-
-### Conditional gzip_min_length
-
-* **Syntax:** *gzip_min_length length;*
-
-* **Default:** *gzip_min_length 20;*
-
-* **Context:** *http, server, location, when*
-
-Refer to [gzip_min_length](https://nginx.org/en/docs/http/ngx_http_gzip_module.html#gzip_min_length) for the original directive behavior. Supports conditional configuration.
-
-### gzip_max_length
-
-* **Syntax:** *gzip_max_length length;*
-
-* **Default:** *gzip_max_length 0;*
-
-* **Context:** *http, server, location, when*
-
-Sets the maximum length of a response that will be gzipped. The length is determined only from the “Content-Length” response header field. A value of 0 means no upper limit. Supports conditional configuration.
-
-### gzip_bypass
-
-* **Syntax:** *gzip_bypass string ...;*
-
-* **Default:** *-*
-
-* **Context:** *http, server, location*
-
-Defines conditions under which the response will not be gzipped. If at least one value of the string parameters is not empty and is not equal to “0” then the response will not be gzipped.
-
-[Back to TOC](#table-of-contents)
-
 ## ngx_http_log_module
 
 ### Conditional access_log
 
-* **Syntax:** *access_log path [format [buffer=size] [gzip[=level]] [flush=time]]*;  *access_log off*;
+* **Syntax:** *access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition] [sample=number]]*;  *access_log off*;
 
 * **Default:** *access_log logs/access.log combined;*
 
-* **Context:** *http, stream, server, location, http when, stream when, server when, location when*
+* **Context:** *http, stream, server, location, when*
 
-refer to [access_log](https://nginx.org/en/docs/http/ngx_http_log_module.html#access_log)
+Refer to [access_log](https://nginx.org/en/docs/http/ngx_http_log_module.html#access_log) (HTTP) and [access_log](https://nginx.org/en/docs/stream/ngx_stream_log_module.html#access_log) (Stream) for the original directive behavior.
 
-Define conditions with `ngx_expr_module` and put conditional log entries
-in `when` blocks. Every matching `access_log` entry is written in configuration
-order. Use `when !condition_name` for the inverse case.
+Define conditions with `ngx_expr_module` and place conditional log entries in `when` blocks. Matching entries are processed in configuration order. Use `when !condition_name` for the inverse case.
+
+When both `when` and `if=` are specified, both must permit logging. The `if!=` parameter is not supported. This also applies to `upstream_log`.
+
+An unconditional entry or a matching `when` selects the current level's log list. Otherwise, the nearest parent level with active entries is used. Parent and child lists are not combined. Inherited conditions use the current expression definitions.
+
+The `if=` and `sample=` parameters filter entries in the selected list. A failed filter, a matching `off`, or a write failure does not select a parent list. `upstream_log` and `stat_log` use the same rules independently.
+
+`sample=number` accepts integers from `0` to `2147483647`; the value can contain variables. `0` skips this destination. `1` (the default) logs every eligible request or session. `N > 1` logs each entry with probability `1/N`. Destinations are sampled independently. With `upstream_log`, each upstream attempt is sampled separately.
+
+```nginx
+map $host $access_sample {
+    default 20;
+    important.example.com 1;
+}
+
+access_log logs/access.log combined sample=$access_sample;
+upstream_log logs/upstream.log upstream sample=20;
+```
+
+Sampling is applied after `when` and `if=` and does not require `ngx_expr_module`. Invalid literal values or repeated `sample=` parameters are configuration errors. Invalid variable values log an error and skip only that entry.
 
 ```nginx
 expr loggable !str_eq $status 204;
@@ -1466,13 +1497,13 @@ when loggable {
 }
 ```
 
-The special value off cancels subsequent access_log directives on the current level.
+A matching `off` stops subsequent `access_log` entries at the selected level.
 
 [Back to TOC](#table-of-contents)
 
 ## ngx_http_modsecurity_module (3rd-party module)
 
-refer to [ngx_http_modsecurity_module](https://github.com/HanadaLee/ngx_http_modsecurity_module).
+Refer to [ngx_http_modsecurity_module](https://github.com/owasp-modsecurity/ModSecurity-nginx).
 
 This module connects NGINX/OpenResty with libModSecurity v3. This bundle applies an additional patch that adds log variables for ModSecurity interventions and matched rule IDs, skips deleted request/response headers, and adds `modsecurity_bypass`.
 
@@ -1487,6 +1518,8 @@ Defines conditions under which the request will be checked by modsecurity. If at
 [Back to TOC](#table-of-contents)
 
 ## ngx_stream_lua_module
+
+See [ngx.fs](#ngxfs) for asynchronous file operations in Stream Lua.
 
 ### access_by_lua_block
 
@@ -1585,9 +1618,29 @@ loaded on demand at runtime, regardless of the selected mode.
 `ssl_certificate_cache` also applies to files loaded in `runtime` mode.
 The setting is inherited unless overridden.
 
+### ssl_reject_handshake
+
+* **Syntax:** *ssl_reject_handshake on | off;*
+
+* **Default:** *ssl_reject_handshake off;*
+
+* **Context:** *stream, server, when*
+
+Refer to [ssl_reject_handshake](https://nginx.org/en/docs/stream/ngx_stream_ssl_module.html#ssl_reject_handshake) for the original directive behavior. Define conditions with `ngx_expr_module` and place conditional settings in `when` blocks.
+
+### ssl_delay_handshake
+
+* **Syntax:** *ssl_delay_handshake time;*
+
+* **Default:** *ssl_delay_handshake 0;*
+
+* **Context:** *stream, server, when*
+
+Delays TLS handshakes, with the same variable support and delay-before-rejection behavior as the [HTTP directive](#ssl_delay_handshake). The delay counts toward `ssl_handshake_timeout`.
+
 ### Variables about SSL handshake timestamps and time spent
 
-In the stream subsystem, new variables are introduced to get the start timestamp, end timestamp, and time taken for the SSL handshake. The module [ngx_stream_extra_variables_module](https://git.hanada.info/hanada/ngx_stream_extra_variables_module) must be compiled to use these variables.
+In the stream subsystem, new variables are introduced to get the start timestamp, end timestamp, and time taken for the SSL handshake.
 
 | Variable                          | Description |
 | ---                               | ---         |

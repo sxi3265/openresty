@@ -1,8 +1,8 @@
 # Intentionally empty: the version is read from util/ver at RESTY_COMMIT so it
 # is not pinned separately from the upstream source revision.
 ARG RESTY_VERSION
-ARG RESTY_RELEASE="384"
-ARG RESTY_COMMIT="bc8bf89488f2d02572389158533b3f85ca0ded7f"
+ARG RESTY_RELEASE="395"
+ARG RESTY_COMMIT="8f1a374d79d849c4b2f6e4f35639aac70ab02985"
 ARG RESTY_J="4"
 ARG RESTY_IMAGE_BASE="debian"
 ARG RESTY_IMAGE_TAG="trixie-slim"
@@ -10,17 +10,122 @@ ARG RESTY_GIT_MIRROR="github.com"
 ARG RESTY_GIT_RAW_MIRROR="raw.githubusercontent.com"
 ARG RESTY_GIT_REPO="github.com/sxi3265"
 ARG RESTY_REPOSITORY="https://${RESTY_GIT_MIRROR}/openresty/openresty.git"
+ARG RESTY_RUST_VERSION="1.89.0"
 ARG RESTY_LUAROCKS_VERSION="3.13.0"
 ARG RESTY_LUA_RESTY_BALANCER_VERSION="0.05"
+ARG RESTY_LUA_RESTY_MLCACHE_VERSION="2.7.1"
+ARG RESTY_LUA_RESTY_COOKIE_VERSION="0.5.0"
+ARG RESTY_JSONSCHEMA_VERSION="0.9.13"
 ARG RESTY_LIBMAXMINDDB_VERSION="1.14.1"
-ARG RESTY_OPENSSL_VERSION="3.5.8"
+ARG RESTY_OPENSSL_VERSION="3.5.9"
 ARG RESTY_OPENSSL_PATCH_VERSION="3.5.5"
-ARG RESTY_PCRE_VERSION="10.48"
+ARG RESTY_PCRE_VERSION="10.49"
 ARG RESTY_ZLIB_VERSION="1.3.2"
 ARG RESTY_ZSTD_VERSION="1.5.7"
-ARG RESTY_LIBVIPS_VERSION="8.18.6"
-ARG RESTY_MODSECURITY_VERSION="3.0.16"
-ARG RESTY_OWSAP_CRS_VERSION="4.29.0"
+ARG RESTY_BROTLI_VERSION="1.2.1"
+ARG RESTY_LIBVIPS_VERSION="8.18.7"
+ARG RESTY_MODSECURITY_VERSION="3.0.17"
+ARG RESTY_OWSAP_CRS_VERSION="4.30.0"
+
+# LuaRocks packages.
+ARG RESTY_LUA_LOLHTML_VERSION="1.1.0-1"
+ARG RESTY_LUA_RESTY_MULTIPART_PARSER_VERSION="1.2.0-1"
+ARG RESTY_BINARYHEAP_VERSION="0.4-1"
+ARG RESTY_LUAFILESYSTEM_VERSION="1.9.0-1"
+ARG RESTY_PENLIGHT_VERSION="1.15.0-1"
+ARG RESTY_NET_URL_VERSION="1.2-1"
+ARG RESTY_API7_DKJSON_VERSION="0.1.1-0"
+ARG RESTY_LYAML_VERSION="6.2.9-2"
+ARG RESTY_LRANDOM_VERSION="20180729-1"
+ARG RESTY_LUAXXHASH_VERSION="1.0.0-1"
+ARG RESTY_XML2LUA_VERSION="1.6-2"
+ARG RESTY_LUA_FFI_ZLIB_VERSION="0.6-0"
+ARG RESTY_LUA_RESTY_OPENSSL_VERSION="1.10.0-1"
+ARG RESTY_LUA_RESTY_HTTP_VERSION="0.18.0-0"
+ARG RESTY_LUA_RESTY_HMAC_FFI_VERSION="0.06-1"
+ARG RESTY_LUA_RESTY_JWT_VERSION="0.4.0-1"
+ARG RESTY_LUA_RESTY_SESSION_VERSION="4.2.0-1"
+ARG RESTY_LUA_RESTY_OPENIDC_VERSION="1.9.2-1"
+ARG RESTY_LUA_RESTY_TIMER_VERSION="1.1.0-1"
+ARG RESTY_LUA_RESTY_KAFKA_VERSION="0.23-0"
+ARG RESTY_LUA_RESTY_TEMPLATE_VERSION="2.0-1"
+ARG RESTY_LUA_RESTY_WORKER_EVENTS_VERSION="2.0.1-1"
+ARG RESTY_LUA_RESTY_HEALTHCHECK_VERSION="3.1.2-1"
+ARG RESTY_LUA_RESTY_IPMATCHER_VERSION="0.6.1-0"
+ARG RESTY_LUA_RESTY_EXPR_VERSION="1.3.2-0"
+ARG RESTY_API7_LUA_RESTY_REDIS_CONNECTOR_VERSION="0.13.0-0"
+ARG RESTY_LUA_RESTY_REDIS_CLUSTER_VERSION="1.3.3-0"
+ARG RESTY_LUA_RESTY_TIMER_NG_VERSION="0.2.7-1"
+ARG RESTY_LUA_RESTY_MAXMINDDB_VERSION="1.3.7-1"
+ARG RESTY_LUA_RESTY_M3U8_VERSION="0.2-0"
+ARG RESTY_LUA_RESTY_CTX_VERSION="1.0-0"
+ARG RESTY_LUA_RESTY_GD_VERSION="2.3.3.4-1"
+ARG RESTY_LUA_RESTY_CAPTCHA_VERSION="1.0.2-1"
+
+# nginx modules.
+ARG RESTY_NGX_BACKTRACE_MODULE_VERSION="0.1.1"
+ARG RESTY_NGX_EXPR_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_GEOIP2_MODULE_VERSION="3.5.0"
+ARG RESTY_NGX_HTTP_ACCESS_CONTROL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_SECURE_LINK_HASH_MODULE_VERSION="2.0.0"
+ARG RESTY_NGX_HTTP_SECURE_LINK_HMAC_MODULE_VERSION="0.4.0"
+ARG RESTY_NGX_HTTP_SECURE_LINK_SIGN_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_AUTH_INTERNAL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_CACHE_DECHUNK_FILTER_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION="5.1.4"
+ARG RESTY_NGX_HTTP_COMPRESSION_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_CORS_MODULE_VERSION="0.1.1"
+ARG RESTY_NGX_HTTP_DELAY_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_ERROR_LOG_WRITE_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_GRPC_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_GRPC_SET_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_LABEL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION="2.1.0"
+ARG RESTY_NGX_HTTP_LOG_SET_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_LOOP_DETECT_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT="b7cf44e57bc386bc5c15e5c9319e6b6b719357f2"
+ARG RESTY_NGX_HTTP_PHASE_CONTROL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_PROXY_ARGS_CONTROL_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION="2.1.4"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_BASIC_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_NETSTORAGE_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_PROXY_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_PROXY_REQUEST_COOKIES_CONTROL_MODULE_VERSION="1.1.1"
+ARG RESTY_NGX_HTTP_PROXY_SET_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_QRCODE_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT="0b432c649d2dc27ca7cf122ed06ff24fd9d7b3cf"
+ARG RESTY_NGX_HTTP_REWRITE_STATUS_FILTER_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION="0.1.2"
+ARG RESTY_NGX_HTTP_SERVER_REDIRECT_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_SSL_STRICT_SERVER_NAME_MODULE_VERSION="1.0.3"
+ARG RESTY_NGX_HTTP_SORTED_ARGS_MODULE_VERSION="0.3.1"
+ARG RESTY_NGX_HTTP_SYSGUARD_MODULE_VERSION="0.2.0"
+ARG RESTY_NGX_HTTP_TRIM_FILTER_MODULE_VERSION="3.1.5"
+ARG RESTY_NGX_HTTP_UA_PARSER_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_UPSTREAM_LOG_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_WESERV_MODULE_VERSION="v5.1.2"
+ARG RESTY_NGX_LUA_CONFIG_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_LUA_EVENTS_MODULE_VERSION="0.3.1"
+ARG RESTY_NGX_LUA_LOAD_VAR_INDEX_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_STAT_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_STREAM_ACCESS_CONTROL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_STREAM_ERROR_LOG_WRITE_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_STREAM_LABEL_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_STREAM_LOG_SET_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_STREAM_LUA_UPSTREAM_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION="v0.2.0"
+ARG RESTY_NGX_VAR_MODULE_VERSION="1.1.0"
+
+FROM docker.io/rust:${RESTY_RUST_VERSION}-slim-trixie AS rust-toolchain
 
 FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-bundle
 
@@ -70,6 +175,9 @@ ARG RESTY_RELEASE
 ARG RESTY_J
 ARG RESTY_LUAROCKS_VERSION
 ARG RESTY_LUA_RESTY_BALANCER_VERSION
+ARG RESTY_LUA_RESTY_MLCACHE_VERSION
+ARG RESTY_LUA_RESTY_COOKIE_VERSION
+ARG RESTY_JSONSCHEMA_VERSION
 ARG RESTY_LIBMAXMINDDB_VERSION
 ARG RESTY_OPENSSL_VERSION
 ARG RESTY_OPENSSL_PATCH_VERSION
@@ -97,9 +205,109 @@ ARG RESTY_PCRE_BUILD_OPTIONS="\
 "
 ARG RESTY_ZLIB_VERSION
 ARG RESTY_ZSTD_VERSION
+ARG RESTY_BROTLI_VERSION
 ARG RESTY_LIBVIPS_VERSION
 ARG RESTY_MODSECURITY_VERSION
 ARG RESTY_OWSAP_CRS_VERSION
+
+# LuaRocks packages.
+ARG RESTY_LUA_LOLHTML_VERSION
+ARG RESTY_LUA_RESTY_MULTIPART_PARSER_VERSION
+ARG RESTY_BINARYHEAP_VERSION
+ARG RESTY_LUAFILESYSTEM_VERSION
+ARG RESTY_PENLIGHT_VERSION
+ARG RESTY_NET_URL_VERSION
+ARG RESTY_API7_DKJSON_VERSION
+ARG RESTY_LYAML_VERSION
+ARG RESTY_LRANDOM_VERSION
+ARG RESTY_LUAXXHASH_VERSION
+ARG RESTY_XML2LUA_VERSION
+ARG RESTY_LUA_FFI_ZLIB_VERSION
+ARG RESTY_LUA_RESTY_OPENSSL_VERSION
+ARG RESTY_LUA_RESTY_HTTP_VERSION
+ARG RESTY_LUA_RESTY_HMAC_FFI_VERSION
+ARG RESTY_LUA_RESTY_JWT_VERSION
+ARG RESTY_LUA_RESTY_SESSION_VERSION
+ARG RESTY_LUA_RESTY_OPENIDC_VERSION
+ARG RESTY_LUA_RESTY_TIMER_VERSION
+ARG RESTY_LUA_RESTY_KAFKA_VERSION
+ARG RESTY_LUA_RESTY_TEMPLATE_VERSION
+ARG RESTY_LUA_RESTY_WORKER_EVENTS_VERSION
+ARG RESTY_LUA_RESTY_HEALTHCHECK_VERSION
+ARG RESTY_LUA_RESTY_IPMATCHER_VERSION
+ARG RESTY_LUA_RESTY_EXPR_VERSION
+ARG RESTY_API7_LUA_RESTY_REDIS_CONNECTOR_VERSION
+ARG RESTY_LUA_RESTY_REDIS_CLUSTER_VERSION
+ARG RESTY_LUA_RESTY_TIMER_NG_VERSION
+ARG RESTY_LUA_RESTY_MAXMINDDB_VERSION
+ARG RESTY_LUA_RESTY_M3U8_VERSION
+ARG RESTY_LUA_RESTY_CTX_VERSION
+ARG RESTY_LUA_RESTY_GD_VERSION
+ARG RESTY_LUA_RESTY_CAPTCHA_VERSION
+
+# nginx modules.
+ARG RESTY_NGX_BACKTRACE_MODULE_VERSION
+ARG RESTY_NGX_EXPR_MODULE_VERSION
+ARG RESTY_NGX_GEOIP2_MODULE_VERSION
+ARG RESTY_NGX_HTTP_ACCESS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SECURE_LINK_HASH_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SECURE_LINK_HMAC_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SECURE_LINK_SIGN_MODULE_VERSION
+ARG RESTY_NGX_HTTP_AUTH_INTERNAL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_CACHE_DECHUNK_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION
+ARG RESTY_NGX_HTTP_COMPRESSION_MODULE_VERSION
+ARG RESTY_NGX_HTTP_CORS_MODULE_VERSION
+ARG RESTY_NGX_HTTP_DELAY_MODULE_VERSION
+ARG RESTY_NGX_HTTP_ERROR_LOG_WRITE_MODULE_VERSION
+ARG RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION
+ARG RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_GRPC_HEADERS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_GRPC_SET_MODULE_VERSION
+ARG RESTY_NGX_HTTP_HEADERS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION
+ARG RESTY_NGX_HTTP_LABEL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_LOG_SET_MODULE_VERSION
+ARG RESTY_NGX_HTTP_LOOP_DETECT_MODULE_VERSION
+ARG RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT
+ARG RESTY_NGX_HTTP_PHASE_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_ARGS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_AUTH_BASIC_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_AUTH_NETSTORAGE_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_HEADERS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_REQUEST_COOKIES_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_HTTP_PROXY_SET_MODULE_VERSION
+ARG RESTY_NGX_HTTP_QRCODE_MODULE_VERSION
+ARG RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT
+ARG RESTY_NGX_HTTP_REWRITE_STATUS_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SERVER_REDIRECT_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SSL_STRICT_SERVER_NAME_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SORTED_ARGS_MODULE_VERSION
+ARG RESTY_NGX_HTTP_SYSGUARD_MODULE_VERSION
+ARG RESTY_NGX_HTTP_TRIM_FILTER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_UA_PARSER_MODULE_VERSION
+ARG RESTY_NGX_HTTP_UPSTREAM_LOG_MODULE_VERSION
+ARG RESTY_NGX_HTTP_WESERV_MODULE_VERSION
+ARG RESTY_NGX_LUA_CONFIG_MODULE_VERSION
+ARG RESTY_NGX_LUA_EVENTS_MODULE_VERSION
+ARG RESTY_NGX_LUA_LOAD_VAR_INDEX_MODULE_VERSION
+ARG RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION
+ARG RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION
+ARG RESTY_NGX_STAT_MODULE_VERSION
+ARG RESTY_NGX_STREAM_ACCESS_CONTROL_MODULE_VERSION
+ARG RESTY_NGX_STREAM_ERROR_LOG_WRITE_MODULE_VERSION
+ARG RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION
+ARG RESTY_NGX_STREAM_LABEL_MODULE_VERSION
+ARG RESTY_NGX_STREAM_LOG_SET_MODULE_VERSION
+ARG RESTY_NGX_STREAM_LUA_UPSTREAM_MODULE_VERSION
+ARG RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION
+ARG RESTY_NGX_VAR_MODULE_VERSION
+
 ARG RESTY_PATH_OPTIONS="\
     --prefix=/usr/local/openresty \
     --sbin-path=/usr/local/openresty/sbin/nginx \
@@ -126,8 +334,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --with-http_json_module \
     --with-http_addition_module \
     --with-http_auth_request_module \
-    --with-http_gunzip_module \
-    --with-http_gzip_static_module \
+    --without-http_gzip_module \
     --with-http_realip_module \
     --with-http_degradation_module \
     --with-http_slice_module \
@@ -143,14 +350,12 @@ ARG RESTY_CONFIG_OPTIONS="\
     --add-module=/build/modules/ngx_stat_module \
     --add-module=/build/modules/ngx_geoip2_module \
     --add-module=/build/modules/ngx_http_access_control_module \
-    --add-module=/build/modules/ngx_http_auth_akamai_g2o_module \
-    --add-module=/build/modules/ngx_http_auth_hash_module \
-    --add-module=/build/modules/ngx_http_auth_hmac_module \
+    --add-module=/build/modules/ngx_http_secure_link_hash_module \
+    --add-module=/build/modules/ngx_http_secure_link_hmac_module \
+    --add-module=/build/modules/ngx_http_secure_link_sign_module \
     --add-module=/build/modules/ngx_http_auth_internal_module \
-    --add-module=/build/modules/ngx_http_brotli_module \
     --add-module=/build/modules/ngx_http_cache_purge_module \
-    --add-module=/build/modules/ngx_http_compression_normalize_module \
-    --add-module=/build/modules/ngx_http_compression_vary_filter_module \
+    --add-module=/build/modules/ngx_http_compression_module \
     --add-module=/build/modules/ngx_http_headers_control_module \
     --add-module=/build/modules/ngx_http_cors_module \
     --add-module=/build/modules/ngx_http_delay_module \
@@ -164,6 +369,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --add-module=/build/modules/ngx_http_grpc_filter_module \
     --add-module=/build/modules/ngx_http_grpc_headers_control_module \
     --add-module=/build/modules/ngx_http_grpc_set_module \
+    --add-module=/build/modules/ngx_http_phase_control_module \
     --add-module=/build/modules/ngx_http_proxy_filter_module \
     --add-module=/build/modules/ngx_http_proxy_auth_netstorage_module \
     --add-module=/build/modules/ngx_http_proxy_auth_aws_module \
@@ -178,22 +384,18 @@ ARG RESTY_CONFIG_OPTIONS="\
     --add-module=/build/modules/ngx_http_rewrite_status_filter_module \
     --add-module=/build/modules/ngx_http_security_headers_filter_module \
     --add-module=/build/modules/ngx_http_server_redirect_module \
+    --add-module=/build/modules/ngx_http_ssl_strict_server_name_module \
     --add-module=/build/modules/ngx_http_sorted_args_module \
     --add-module=/build/modules/ngx_http_sysguard_module \
     --add-module=/build/modules/ngx_http_trim_filter_module \
     --add-module=/build/modules/ngx_http_cache_dechunk_filter_module \
     --add-module=/build/modules/ngx_http_ua_parser_module \
-    --add-module=/build/modules/ngx_http_unbrotli_filter_module \
-    --add-module=/build/modules/ngx_http_undeflate_filter_module \
-    --add-module=/build/modules/ngx_http_unzstd_filter_module \
     --add-module=/build/modules/ngx_http_upstream_log_module \
     --add-module=/build/modules/ngx_http_modsecurity_module \
     --add-module=/build/modules/ngx_http_weserv_module \
-    --add-module=/build/modules/ngx_http_zstd_module \
     --add-module=/build/modules/ngx_lua_config_module \
     --add-module=/build/modules/ngx_lua_events_module \
     --add-module=/build/modules/ngx_lua_load_var_index_module \
-    --add-module=/build/modules/ngx_lua_resty_lmdb_module \
     --add-module=/build/modules/ngx_lua_upstream_state_module \
     --add-module=/build/modules/ngx_ssl_fingerprint_module \
     --add-module=/build/modules/ngx_stream_access_control_module \
@@ -202,6 +404,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --add-module=/build/modules/ngx_stream_label_module \
     --add-module=/build/modules/ngx_stream_log_set_module \
     --add-module=/build/modules/ngx_stream_lua_upstream_module \
+    --add-module=/build/modules/ngx_tcp_fingerprint_module \
     --add-module=/build/modules/ngx_var_module \
 "
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
@@ -210,6 +413,12 @@ ARG RESTY_CONFIG_DEPS="--with-pcre --with-pcre-jit \
     --with-ld-opt='-Wl,-rpath,/usr/local/openresty/lib -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -Wl,--gc-sections -pie -ljemalloc' \
 "
 
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:${PATH}
+
+COPY --from=rust-toolchain /usr/local/rustup /usr/local/rustup
+COPY --from=rust-toolchain /usr/local/cargo /usr/local/cargo
 COPY --from=openresty-bundle /openresty.tar.gz /build/openresty.tar.gz
 COPY --from=openresty-bundle /openresty-version /build/openresty-version
 
@@ -228,7 +437,6 @@ RUN BUNDLE_RESTY_VERSION="$(cat /build/openresty-version)" \
         bison \
         build-essential \
         ca-certificates \
-        cargo \
         cmake \
         curl \
         flex \
@@ -251,6 +459,7 @@ RUN BUNDLE_RESTY_VERSION="$(cat /build/openresty-version)" \
         libpoppler-glib-dev \
         libqrencode-dev \
         libre2-dev \
+        librocksdb-dev \
         librsvg2-dev \
         libspng-dev \
         libtiff-dev \
@@ -263,7 +472,6 @@ RUN BUNDLE_RESTY_VERSION="$(cat /build/openresty-version)" \
         meson \
         perl \
         pkgconf \
-        rustc \
         unzip \
         wget \
     && if [ "${RESTY_GIT_MIRROR}" != "github.com" ]; then \
@@ -290,6 +498,7 @@ RUN mkdir -p /build/lib \
     && tar xzf pcre2-${RESTY_PCRE_VERSION}.tar.gz \
     && curl -fSLv https://${RESTY_GIT_MIRROR}/facebook/zstd/releases/download/v${RESTY_ZSTD_VERSION}/zstd-${RESTY_ZSTD_VERSION}.tar.gz -o zstd-${RESTY_ZSTD_VERSION}.tar.gz \
     && tar xzf zstd-${RESTY_ZSTD_VERSION}.tar.gz \
+    && git clone --depth=1 --branch "v${RESTY_BROTLI_VERSION}" https://${RESTY_GIT_MIRROR}/google/brotli.git brotli \
     && curl -fSLv https://${RESTY_GIT_MIRROR}/libvips/libvips/releases/download/v${RESTY_LIBVIPS_VERSION}/vips-${RESTY_LIBVIPS_VERSION}.tar.xz -o vips-${RESTY_LIBVIPS_VERSION}.tar.xz \
     && tar xf vips-${RESTY_LIBVIPS_VERSION}.tar.xz \
     && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/ua-parser/uap-cpp.git uap-cpp \
@@ -298,82 +507,84 @@ RUN mkdir -p /build/lib \
 # Fetch nginx modules.
 RUN mkdir -p /build/modules \
     && cd /build/modules \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_REPO}/ngx_http_brotli_module.git ngx_http_brotli_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/weserv/images.git ngx_http_weserv_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/nginx-modules/ngx_cache_purge.git ngx_http_cache_purge_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_access_control_module.git ngx_http_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_akamai_g2o_module.git ngx_http_auth_akamai_g2o_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hash_module.git ngx_http_auth_hash_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_auth_hmac_module.git ngx_http_auth_hmac_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_geoip2_module.git ngx_geoip2_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/openresty/replace-filter-nginx-module.git ngx_http_replace_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_config_module.git ngx_lua_config_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_zstd_module.git ngx_http_zstd_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unbrotli_filter_module.git ngx_http_unbrotli_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_undeflate_filter_module.git ngx_http_undeflate_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_unzstd_filter_module.git ngx_http_unzstd_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_delay_module.git ngx_http_delay_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_normalize_module.git ngx_http_compression_normalize_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_compression_vary_filter_module.git ngx_http_compression_vary_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_var_module.git ngx_var_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_cors_module.git ngx_http_cors_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_log_set_module.git ngx_http_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_label_module.git ngx_http_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_headers_control_module.git ngx_http_headers_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_backtrace_module.git ngx_backtrace_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/vozlt/nginx-module-sysguard.git ngx_http_sysguard_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_http_qrcode_module.git ngx_http_qrcode_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/Kong/lua-resty-events.git ngx_lua_events_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_access_control_module.git ngx_stream_access_control_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_log_set_module.git ngx_stream_log_set_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_label_module.git ngx_stream_label_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/Kong/lua-resty-lmdb.git ngx_lua_resty_lmdb_module \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/alibaba/tengine.git tengine \
-    && mv tengine/modules/ngx_http_trim_filter_module ngx_http_trim_filter_module \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/owasp-modsecurity/ModSecurity-nginx.git ngx_http_modsecurity_module
+    && git clone --depth=1 --branch "${RESTY_NGX_EXPR_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STAT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/HanadaLee/ngx_tcp_fingerprint_module.git ngx_tcp_fingerprint_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_WESERV_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/weserv/images.git ngx_http_weserv_module \
+    && git -C ngx_http_weserv_module submodule update --init --recursive \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cache_purge_module.git ngx_http_cache_purge_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_limit_traffic_rate_filter_module.git ngx_http_limit_traffic_rate_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_ACCESS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_access_control_module.git ngx_http_access_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_AUTH_INTERNAL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_auth_internal_module.git ngx_http_auth_internal_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SECURE_LINK_HASH_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_secure_link_hash_module.git ngx_http_secure_link_hash_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SECURE_LINK_HMAC_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_secure_link_hmac_module.git ngx_http_secure_link_hmac_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SECURE_LINK_SIGN_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_secure_link_sign_module.git ngx_http_secure_link_sign_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_filter_module.git ngx_http_grpc_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_headers_control_module.git ngx_http_grpc_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_GRPC_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_grpc_set_module.git ngx_http_grpc_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PHASE_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_phase_control_module.git ngx_http_phase_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_filter_module.git ngx_http_proxy_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_ARGS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_args_control_module.git ngx_http_proxy_args_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_REQUEST_COOKIES_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_request_cookies_control_module.git ngx_http_proxy_request_cookies_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_headers_control_module.git ngx_http_proxy_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_NETSTORAGE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_netstorage_module.git ngx_http_proxy_auth_netstorage_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_aws_module.git ngx_http_proxy_auth_aws_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_BASIC_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_basic_module.git ngx_http_proxy_auth_basic_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_auth_internal_module.git ngx_http_proxy_auth_internal_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_PROXY_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_proxy_set_module.git ngx_http_proxy_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_GEOIP2_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_geoip2_module.git ngx_geoip2_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SORTED_ARGS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_sorted_args_module.git ngx_http_sorted_args_module \
+    && git init ngx_http_replace_filter_module \
+    && git -C ngx_http_replace_filter_module remote add origin https://${RESTY_GIT_MIRROR}/openresty/replace-filter-nginx-module.git \
+    && git -C ngx_http_replace_filter_module fetch --depth=1 origin "${RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_replace_filter_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT}" \
+    && git -C ngx_http_replace_filter_module checkout --detach FETCH_HEAD \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_ERROR_LOG_WRITE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_error_log_write_module.git ngx_http_error_log_write_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_extra_variables_module.git ngx_http_extra_variables_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_CONFIG_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_config_module.git ngx_lua_config_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_LOAD_VAR_INDEX_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_load_var_index_module.git ngx_lua_load_var_index_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CACHE_DECHUNK_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cache_dechunk_filter_module.git ngx_http_cache_dechunk_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_DELAY_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_delay_module.git ngx_http_delay_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SERVER_REDIRECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_server_redirect_module.git ngx_http_server_redirect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SSL_STRICT_SERVER_NAME_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_ssl_strict_server_name_module.git ngx_http_ssl_strict_server_name_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_internal_redirect_module.git ngx_http_internal_redirect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UPSTREAM_LOG_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_upstream_log_module.git ngx_http_upstream_log_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_REWRITE_STATUS_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_rewrite_status_filter_module.git ngx_http_rewrite_status_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_VAR_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_var_module.git ngx_var_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_security_headers_filter_module.git ngx_http_security_headers_filter_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_COMPRESSION_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_compression_module.git ngx_http_compression_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CORS_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cors_module.git ngx_http_cors_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LOG_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_log_set_module.git ngx_http_log_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LOOP_DETECT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_loop_detect_module.git ngx_http_loop_detect_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_LABEL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_label_module.git ngx_http_label_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_HEADERS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_headers_control_module.git ngx_http_headers_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_UA_PARSER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_ua_parser_module.git ngx_http_ua_parser_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_BACKTRACE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_backtrace_module.git ngx_backtrace_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_SYSGUARD_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_sysguard_module.git ngx_http_sysguard_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_QRCODE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_qrcode_module.git ngx_http_qrcode_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_EVENTS_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/Kong/lua-resty-events.git ngx_lua_events_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_ACCESS_CONTROL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_access_control_module.git ngx_stream_access_control_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_ERROR_LOG_WRITE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_error_log_write_module.git ngx_stream_error_log_write_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LOG_SET_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_log_set_module.git ngx_stream_log_set_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LABEL_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_label_module.git ngx_stream_label_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_extra_variables_module.git ngx_stream_extra_variables_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_lua_upstream_state_module.git ngx_lua_upstream_state_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_STREAM_LUA_UPSTREAM_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stream_lua_upstream_module.git ngx_stream_lua_upstream_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_HTTP_TRIM_FILTER_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_trim_filter_module.git ngx_http_trim_filter_module \
+    && git init ngx_http_modsecurity_module \
+    && git -C ngx_http_modsecurity_module remote add origin https://${RESTY_GIT_MIRROR}/owasp-modsecurity/ModSecurity-nginx.git \
+    && git -C ngx_http_modsecurity_module fetch --depth=1 origin "${RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT}" \
+    && test "$(git -C ngx_http_modsecurity_module rev-parse FETCH_HEAD)" = "${RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT}" \
+    && git -C ngx_http_modsecurity_module checkout --detach FETCH_HEAD
 
 # Fetch Lua libraries that are not included in the OpenResty bundle.
 RUN mkdir -p /build/lualib \
     && cd /build/lualib \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/agentzh/lua-resty-multipart-parser.git lua-resty-multipart-parser \
     && git clone --depth=1 --branch v${RESTY_LUA_RESTY_BALANCER_VERSION} https://${RESTY_GIT_MIRROR}/openresty/lua-resty-balancer.git lua-resty-balancer \
-    && git clone --depth=1 https://${RESTY_GIT_MIRROR}/api7/jsonschema.git jsonschema \
-    && git clone --depth=1 --branch supported_semaphore_wait_phases https://${RESTY_GIT_MIRROR}/sxi3265/lua-resty-dns-client.git lua-resty-dns-client \
-    && git clone --depth=1 https://${RESTY_GIT_REPO}/lua-resty-mlcache.git lua-resty-mlcache \
-    && git clone --depth=1 --recurse-submodules https://${RESTY_GIT_MIRROR}/sxi3265/lua-lolhtml.git
+    && git clone --depth=1 --branch v${RESTY_JSONSCHEMA_VERSION} https://${RESTY_GIT_MIRROR}/api7/jsonschema.git jsonschema \
+    && git clone --depth=1 --branch ${RESTY_LUA_RESTY_MLCACHE_VERSION} https://${RESTY_GIT_REPO}/lua-resty-mlcache.git lua-resty-mlcache \
+    && git clone --depth=1 --branch "${RESTY_LUA_RESTY_COOKIE_VERSION}" https://${RESTY_GIT_REPO}/lua-resty-cookie.git lua-resty-cookie
 
 # Build foundational native libraries.
 RUN cd /build/lib/libmaxminddb-${RESTY_LIBMAXMINDDB_VERSION} \
@@ -394,8 +605,6 @@ RUN cd /build/lib/libmaxminddb-${RESTY_LIBMAXMINDDB_VERSION} \
     && cd /build/lib/openssl-${RESTY_OPENSSL_VERSION} \
     && echo 'patching OpenSSL 3.x for OpenResty' \
     && curl -fSLv https://${RESTY_GIT_RAW_MIRROR}/openresty/openresty/${RESTY_COMMIT}/patches/openssl-${RESTY_OPENSSL_PATCH_VERSION}-sess_set_get_cb_yield.patch | patch -p1 \
-    && echo 'patching OpenSSL 3.x for ngx_ssl_figerprint_module' \
-    && patch -p1 < /build/modules/ngx_ssl_fingerprint_module/patches/openssl-3.5.5+.patch \
     && ./config \
         shared zlib -g \
         --libdir=lib \
@@ -449,9 +658,9 @@ RUN cd /build/lib/vips-${RESTY_LIBVIPS_VERSION} \
     && make -j${RESTY_J} \
     && make install \
     && ldconfig \
-    && cd /build/modules/ngx_http_brotli_module \
-    && mkdir -p deps/brotli/out \
-    && cd deps/brotli/out \
+    && cd /build/lib/brotli \
+    && mkdir -p out \
+    && cd out \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
         -DCMAKE_C_FLAGS="-O3 -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" \
         -DCMAKE_CXX_FLAGS="-O3 -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" .. \
@@ -473,18 +682,15 @@ RUN RESTY_VERSION="$(cat /build/openresty-version)" \
     && NGINX_VERSION="${RESTY_VERSION%.*}" \
     && OPENRESTY_DIR="/build/openresty-${RESTY_VERSION}" \
     && NGINX_DIR="${OPENRESTY_DIR}/bundle/nginx-${NGINX_VERSION}" \
+    && cd /build/modules/ngx_tcp_fingerprint_module \
+    && echo 'patching ngx_tcp_fingerprint_module to remove RTT collection' \
+    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_tcp_fingerprint_module-no-rtt_0.2.0+.patch \
     && cd /build/modules/ngx_http_modsecurity_module \
     && echo 'patching ngx_http_modsecurity_module' \
-    && patch -p1 < /build/patches/ngx_http_modsecurity_module-ext.patch \
+    && patch -p1 < /build/patches/ngx_http_modsecurity_module-ext_1.0.4-18-gb7cf44e+.patch \
     && cd /build/modules/ngx_http_loop_detect_module \
     && echo 'patching ngx_http_loop_detect_module' \
-    && patch -p1 < /build/patches/ngx_http_loop_detect_module-cdn_id.patch \
-    && cd /build/modules/ngx_lua_resty_lmdb_module \
-    && echo 'patching lua-resty-lmdb for preaccess_by_lua' \
-    && patch -p1 < /build/patches/lua-resty-lmdb-preaccess_by_lua.patch \
-    && cd /build/lualib/lua-resty-dns-client \
-    && echo 'patching lua-resty-dns-client for preaccess_by_lua' \
-    && patch -p1 < /build/patches/lua-resty-dns-client-preaccess_by_lua.patch \
+    && patch -p1 < /build/patches/ngx_http_loop_detect_module-cdn_id_1.0.0+.patch \
     && cd "${OPENRESTY_DIR}" \
     && echo "patching openresty-${RESTY_VERSION}" \
     && patch -p1 < /build/patches/openresty-fix_prefix_1.27.1.2+.patch \
@@ -492,33 +698,51 @@ RUN RESTY_VERSION="$(cat /build/openresty-version)" \
     && echo "patching ngx_stream_lua_module" \
     && patch -p1 < /build/patches/ngx_stream_lua_module-expose_request_struct_0.0.18RC2+.patch \
     && patch -p1 < /build/patches/ngx_stream_lua_module-access_by_lua_0.0.18RC2+.patch \
+    && patch -p1 < /build/patches/ngx_stream_lua_module-resolve_0.0.18RC2+.patch \
+    && echo "patching ngx_stream_lua_module for ngx.fs" \
+    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_stream_lua_module-async_fs_0.0.20rc4+.patch \
+    && cp /build/patches/ngx_lua_async_fs.inc src/ \
     && cd "${OPENRESTY_DIR}"/bundle/lua-resty-websocket-* \
     && echo "patching lua-resty-websocket" \
     && patch -p1 < /build/patches/lua-resty-websocket-fix_stream_0.13+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/lua-resty-core-* \
     && echo "patching lua-resty-core for preaccess_by_lua" \
-    && patch -p1 < /build/patches/lua-resty-core-preaccess_by_lua.patch \
+    && patch -p1 < /build/patches/lua-resty-core-preaccess_by_lua_0.1.34rc1+.patch \
+    && patch -p1 < /build/patches/lua-resty-core-resolve_0.1.33RC1+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_lua-* \
     && echo "patching ngx_http_lua_module for preaccess_by_lua" \
-    && patch -p1 < /build/patches/ngx_http_lua_module-preaccess_by_lua.patch \
+    && patch -p1 < /build/patches/ngx_http_lua_module-preaccess_by_lua_0.10.31rc1+.patch \
+    && patch -p1 < /build/patches/ngx_http_lua_module-resolve_0.10.31rc1+.patch \
+    && echo "patching ngx_http_lua_module for native ClientHello retry" \
+    && patch -p1 < /build/patches/ngx_http_lua_module-client_hello_retry_0.10.29rc1+.patch \
     && cd "${NGINX_DIR}" \
     && echo "patching nginx-${NGINX_VERSION} ext" \
-    && patch -p1 < /build/patches/nginx-ext_1.31.6+.patch \
+    && patch --batch --forward --fuzz=0 -p1 < /build/patches/nginx-ext_1.31.9+.patch \
+    && echo "patching nginx-${NGINX_VERSION} for independent module core support" \
+    && bash /build/modules/ngx_http_extra_variables_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && bash /build/modules/ngx_stream_extra_variables_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && bash /build/modules/ngx_http_ssl_strict_server_name_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && bash /build/modules/ngx_http_proxy_filter_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && bash /build/modules/ngx_http_grpc_filter_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && bash /build/modules/ngx_http_cache_purge_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
     && cd "${OPENRESTY_DIR}"/bundle/redis-nginx-module-* \
     && echo "patching ngx_http_redis_module" \
-    && patch -p1 < /build/patches/ngx_http_redis_module-conditional_upstream.patch \
+    && patch -p1 < /build/patches/ngx_http_redis_module-conditional_upstream_0.40+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/redis2-nginx-module-* \
     && echo "patching ngx_http_redis2_module" \
-    && patch -p1 < /build/patches/ngx_http_redis2_module-conditional_upstream.patch \
+    && patch -p1 < /build/patches/ngx_http_redis2_module-conditional_upstream_0.15rc1+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/drizzle-nginx-module-* \
     && echo "patching ngx_http_drizzle_module" \
-    && patch -p1 < /build/patches/ngx_http_drizzle_module-conditional_upstream.patch \
+    && patch -p1 < /build/patches/ngx_http_drizzle_module-conditional_upstream_0.1.15+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_postgres-* \
     && echo "patching ngx_postgres_module" \
-    && patch -p1 < /build/patches/ngx_postgres_module-conditional_upstream.patch \
+    && patch -p1 < /build/patches/ngx_postgres_module-conditional_upstream_1.1+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_lua-* \
     && echo "patching ngx_http_lua_module for conditional upstream settings" \
-    && patch -p1 < /build/patches/ngx_http_lua_module-conditional_upstream.patch \
+    && patch -p1 < /build/patches/ngx_http_lua_module-conditional_upstream_0.10.27rc1+.patch \
+    && echo "patching ngx_http_lua_module for ngx.fs" \
+    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_http_lua_module-async_fs_0.10.32rc8+.patch \
+    && cp /build/patches/ngx_lua_async_fs.inc src/ \
     && cd "${NGINX_DIR}" \
     && echo "patching nginx-${NGINX_VERSION} for ngx_http_upstream_log_module" \
     && patch -p1 < /build/modules/ngx_http_upstream_log_module/ngx_http_upstream_log_1.25.3+.patch \
@@ -526,6 +750,12 @@ RUN RESTY_VERSION="$(cat /build/openresty-version)" \
     && patch -p1 < /build/modules/ngx_ssl_fingerprint_module/patches/nginx-1.29.3+.patch \
     && echo "resetting openresty release version" \
     && sed -i "s/\(openresty\/.*\)\"/\1.${RESTY_RELEASE}\"/" src/core/nginx.h
+
+# Build the persistent cache index backend before configuring the nginx addon.
+ENV CACHE_PURGE_ROCKSDB_LIB_DIR=/build/cache-purge-backend
+RUN cmake -S /build/modules/ngx_http_cache_purge_module \
+        -B "${CACHE_PURGE_ROCKSDB_LIB_DIR}" -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build "${CACHE_PURGE_ROCKSDB_LIB_DIR}" --parallel "${RESTY_J}"
 
 # Configure and install OpenResty.
 RUN RESTY_VERSION="$(cat /build/openresty-version)" \
@@ -564,51 +794,48 @@ RUN mkdir -p /usr/local/openresty/share \
     && cp -r ngx_lua_events_module/lualib/* /usr/local/openresty/lualib/ \
     && cp -r ngx_lua_upstream_state_module/lualib/* /usr/local/openresty/lualib/ \
     && cp -r ngx_lua_config_module/lualib/* /usr/local/openresty/lualib/ \
-    && cp -r ngx_lua_resty_lmdb_module/lib/* /usr/local/openresty/lualib/ \
     && cd /build/lualib \
-    && cp -r lua-resty-multipart-parser/lib/* /usr/local/openresty/lualib/ \
     && cp -r lua-resty-balancer/lib/* /usr/local/openresty/lualib/ \
     && install -m 755 lua-resty-balancer/librestychash.so /usr/local/openresty/lualib/ \
     && cp -r jsonschema/lib/* /usr/local/openresty/lualib/ \
-    && cp -r lua-resty-dns-client/src/* /usr/local/openresty/lualib/ \
-    && cp -r lua-resty-mlcache/lib/* /usr/local/openresty/lualib/ \
-    && cd /build/lualib/lua-lolhtml \
-    && make -j${RESTY_J} CFLAGS="-O3 -fPIC -I/usr/local/openresty/luajit/include/luajit-2.1" \
-    && cp lolhtml.so /usr/local/openresty/lualib
+    && cp -r lua-resty-mlcache/lib/* /usr/local/openresty/lualib/
 
-# Install LuaRocks packages and runtime data, then trim the assembled tree.
-RUN /usr/local/openresty/luajit/bin/luarocks install binaryheap \
-    && /usr/local/openresty/luajit/bin/luarocks install luafilesystem \
-    && /usr/local/openresty/luajit/bin/luarocks install penlight \
-    && /usr/local/openresty/luajit/bin/luarocks install net-url \
-    && /usr/local/openresty/luajit/bin/luarocks install api7-dkjson \
-    && /usr/local/openresty/luajit/bin/luarocks install lyaml \
-    && /usr/local/openresty/luajit/bin/luarocks install lrandom \
-    && /usr/local/openresty/luajit/bin/luarocks install luaxxhash \
-    && /usr/local/openresty/luajit/bin/luarocks install xml2lua \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-ffi-zlib \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openssl \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-http \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-hmac-ffi \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-jwt \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-session \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openidc \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-timer \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-kafka \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-template \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-cookie \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-worker-events \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-healthcheck \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-ipmatcher \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-expr \
-    && /usr/local/openresty/luajit/bin/luarocks install api7-lua-resty-redis-connector \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-redis-cluster \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-timer-ng \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-maxminddb \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-m3u8 \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-ctx \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-gd \
-    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-captcha \
+# Install LuaRocks packages and runtime data.
+RUN /usr/local/openresty/luajit/bin/luarocks install lua-lolhtml "${RESTY_LUA_LOLHTML_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-multipart-parser "${RESTY_LUA_RESTY_MULTIPART_PARSER_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install binaryheap "${RESTY_BINARYHEAP_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install luafilesystem "${RESTY_LUAFILESYSTEM_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install penlight "${RESTY_PENLIGHT_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install net-url "${RESTY_NET_URL_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install api7-dkjson "${RESTY_API7_DKJSON_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lyaml "${RESTY_LYAML_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lrandom "${RESTY_LRANDOM_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install luaxxhash "${RESTY_LUAXXHASH_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install xml2lua "${RESTY_XML2LUA_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-ffi-zlib "${RESTY_LUA_FFI_ZLIB_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openssl "${RESTY_LUA_RESTY_OPENSSL_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-http "${RESTY_LUA_RESTY_HTTP_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-hmac-ffi "${RESTY_LUA_RESTY_HMAC_FFI_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-jwt "${RESTY_LUA_RESTY_JWT_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-session "${RESTY_LUA_RESTY_SESSION_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openidc "${RESTY_LUA_RESTY_OPENIDC_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-timer "${RESTY_LUA_RESTY_TIMER_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-kafka "${RESTY_LUA_RESTY_KAFKA_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-template "${RESTY_LUA_RESTY_TEMPLATE_VERSION}" \
+    && (cd /build/lualib/lua-resty-cookie \
+        && /usr/local/openresty/luajit/bin/luarocks make "rockspecs/lua-resty-cookie-${RESTY_LUA_RESTY_COOKIE_VERSION}-1.rockspec") \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-worker-events "${RESTY_LUA_RESTY_WORKER_EVENTS_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-healthcheck "${RESTY_LUA_RESTY_HEALTHCHECK_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-ipmatcher "${RESTY_LUA_RESTY_IPMATCHER_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-expr "${RESTY_LUA_RESTY_EXPR_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install api7-lua-resty-redis-connector "${RESTY_API7_LUA_RESTY_REDIS_CONNECTOR_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-redis-cluster "${RESTY_LUA_RESTY_REDIS_CLUSTER_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-timer-ng "${RESTY_LUA_RESTY_TIMER_NG_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-maxminddb "${RESTY_LUA_RESTY_MAXMINDDB_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-m3u8 "${RESTY_LUA_RESTY_M3U8_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-ctx "${RESTY_LUA_RESTY_CTX_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-gd "${RESTY_LUA_RESTY_GD_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-captcha "${RESTY_LUA_RESTY_CAPTCHA_VERSION}" \
     && mkdir -p /usr/local/openresty/share/uap-core \
     && cp /build/lib/uap-cpp/uap-core/regexes.yaml /usr/local/openresty/share/uap-core \
     && cd /usr/local/openresty/share \
@@ -625,9 +852,7 @@ RUN /usr/local/openresty/luajit/bin/luarocks install binaryheap \
               -o -path '/usr/local/openresty/sbin/nginx' \
               -o -path '/usr/local/openresty/luajit/bin/luajit-*' \) \
            -exec strip --strip-debug {} +; \
-       fi \
-    && cd /usr/local/openresty \
-    && rm -rf pod site resty.index bin/md2pod.pl bin/nginx-xml2pod bin/restydoc bin/restydoc-index
+        fi
 
 FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS runtime
 
@@ -635,14 +860,6 @@ ARG RESTY_IMAGE_BASE
 ARG RESTY_IMAGE_TAG
 ARG RESTY_VERSION
 ARG RESTY_RELEASE
-ARG RESTY_LUAROCKS_VERSION
-ARG RESTY_LIBMAXMINDDB_VERSION
-ARG RESTY_OPENSSL_VERSION
-ARG RESTY_OPENSSL_PATCH_VERSION
-ARG RESTY_PCRE_VERSION
-ARG RESTY_ZLIB_VERSION
-ARG RESTY_ZSTD_VERSION
-ARG RESTY_MODSECURITY_VERSION
 
 RUN groupmod -n nginx www-data \
     && usermod -l nginx www-data \
@@ -669,6 +886,7 @@ RUN groupmod -n nginx www-data \
         libpoppler-glib8t64 \
         libqrencode4 \
         libre2-11 \
+        librocksdb9.10 \
         librsvg2-2 \
         libspng0 \
         libtiff6 \
@@ -693,14 +911,6 @@ LABEL resty_image_base="${RESTY_IMAGE_BASE}"
 LABEL resty_image_tag="${RESTY_IMAGE_TAG}"
 LABEL resty_version="${RESTY_VERSION}"
 LABEL resty_release="${RESTY_RELEASE}"
-LABEL resty_luarocks_version="${RESTY_LUAROCKS_VERSION}"
-LABEL resty_openssl_patch_version="${RESTY_OPENSSL_PATCH_VERSION}"
-LABEL resty_openssl_version="${RESTY_OPENSSL_VERSION}"
-LABEL resty_pcre_version="${RESTY_PCRE_VERSION}"
-LABEL resty_zlib_version="${RESTY_ZLIB_VERSION}"
-LABEL resty_zstd_version="${RESTY_ZSTD_VERSION}"
-LABEL resty_libmaxminddb_version="${RESTY_LIBMAXMINDDB_VERSION}"
-LABEL resty_modsecurity_version="${RESTY_MODSECURITY_VERSION}"
 
 WORKDIR /usr/local/openresty
 
