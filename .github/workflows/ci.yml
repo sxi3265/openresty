@@ -37,6 +37,12 @@ jobs:
       - name: Read version
         id: version
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # resolve-version.sh checks release-tag consistency against the
+          # upstream mirror; use its GitHub copy so CI does not depend on
+          # git.hanada.info availability.
+          GITLAB_REPOSITORY: https://github.com/HanadaLee/openresty.git
         run: |
           set -euo pipefail
           bash util/ci/resolve-version.sh Dockerfile >> "$GITHUB_OUTPUT"
