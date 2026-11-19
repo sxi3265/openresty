@@ -10,6 +10,15 @@ if [[ -z "$source_file" ]]; then
     exit 2
 fi
 
+# CI runners occasionally kill long-lived TLS connections mid-transfer
+# (observed with openresty.org: "GnuTLS: Error in the pull function" after
+# a ~2 min stall). get-tarball downloads with a bare `wget`, so one reset
+# aborts the whole bundle build. Make its downloads retry and resume.
+get_tarball="$(dirname -- "$source_file")/get-tarball"
+if [[ -f "$get_tarball" ]]; then
+    perl -0pi -e 's/wget \$1 -O \$3 \|\| exit 1/wget --tries=8 --waitretry=10 --timeout=60 --continue \$1 -O \$3 || exit 1/' "$get_tarball"
+fi
+
 if [[ "$git_mirror" == "github.com" ]]; then
     exit 0
 fi
