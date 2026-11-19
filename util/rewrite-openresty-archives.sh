@@ -19,6 +19,12 @@ if [[ -f "$get_tarball" ]]; then
     perl -0pi -e 's/wget \$1 -O \$3 \|\| exit 1/wget --tries=8 --waitretry=10 --timeout=60 --continue \$1 -O \$3 || exit 1/' "$get_tarball"
 fi
 
+# openresty.org intermittently refuses connections from CI runners, and the
+# only tarball it serves here is nginx, whose canonical home is nginx.org.
+# Point that download at nginx.org so the bundle stage survives an
+# openresty.org outage.
+sed -i 's|https://openresty.org/download/nginx-|https://nginx.org/download/nginx-|g' "$source_file"
+
 if [[ "$git_mirror" == "github.com" ]]; then
     exit 0
 fi
