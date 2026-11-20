@@ -9,10 +9,7 @@ Full tag re-snapshot from `git.hanada.info/hanada/*` completed 2026-11-20: 57 of
 58 pinned tags verified present. `ngx_tcp_fingerprint_module` is likewise
 mirrored (from github.com/HanadaLee) and the Dockerfile now clones it from here.
 
-Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` is pending - GitHub push
-protection blocks the push because upstream's example config contains an AWS key
-format string (a decade-old public example of the ngx_aws_auth module, not a live
-credential). Pending manual allowlisting.
+Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` was initially blocked by GitHub push protection (upstream's example AWS key string) and was allowlisted and pushed on 2026-11-20; all 58 pins are present.
 
 | module | pinned version | status |
 |---|---|---|
