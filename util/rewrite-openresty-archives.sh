@@ -25,6 +25,12 @@ fi
 # openresty.org outage.
 sed -i 's|https://openresty.org/download/nginx-|https://nginx.org/download/nginx-|g' "$source_file"
 
+# The official nginx tarball ships the default pages under html/ and no
+# docs/html/ at all, while OpenResty's repacked tarball (git archive of their
+# nginx mirror) keeps docs/html/ for the branding pages copied next. Create
+# the directory so those copies succeed.
+perl -0pi -e 's/(cp \$root\/html\/index\.html docs\/html\/)/mkdir -p docs\/html || exit 1\n$1/' "$source_file"
+
 if [[ "$git_mirror" == "github.com" ]]; then
     exit 0
 fi
