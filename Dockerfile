@@ -510,7 +510,7 @@ RUN mkdir -p /build/modules \
     && git clone --depth=1 --branch "${RESTY_NGX_EXPR_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_expr_module.git ngx_expr_module \
     && git clone --depth=1 --branch "${RESTY_NGX_STAT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_stat_module.git ngx_stat_module \
     && git clone --depth=1 --branch "${RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_ssl_fingerprint_module.git ngx_ssl_fingerprint_module \
-    && git clone --depth=1 --branch "${RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/HanadaLee/ngx_tcp_fingerprint_module.git ngx_tcp_fingerprint_module \
+    && git clone --depth=1 --branch "${RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/sxi3265/ngx_tcp_fingerprint_module.git ngx_tcp_fingerprint_module \
     && git clone --depth=1 --branch "${RESTY_NGX_HTTP_WESERV_MODULE_VERSION}" https://${RESTY_GIT_MIRROR}/weserv/images.git ngx_http_weserv_module \
     && git -C ngx_http_weserv_module submodule update --init --recursive \
     && git clone --depth=1 --branch "${RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION}" https://${RESTY_GIT_REPO}/ngx_http_cache_purge_module.git ngx_http_cache_purge_module \
