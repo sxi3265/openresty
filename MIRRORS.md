@@ -38,7 +38,7 @@ Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` was initially blocked by
 | [ngx_http_loop_detect_module](https://github.com/sxi3265/ngx_http_loop_detect_module) | `1.0.0` | ok |
 | [ngx_http_phase_control_module](https://github.com/sxi3265/ngx_http_phase_control_module) | `1.0.0` | ok |
 | [ngx_http_proxy_args_control_module](https://github.com/sxi3265/ngx_http_proxy_args_control_module) | `1.0.1` | ok |
-| [ngx_http_proxy_auth_aws_module](https://github.com/sxi3265/ngx_http_proxy_auth_aws_module) | `2.1.4` | tag pending (push protection) |
+| [ngx_http_proxy_auth_aws_module](https://github.com/sxi3265/ngx_http_proxy_auth_aws_module) | `2.1.4` | ok |
 | [ngx_http_proxy_auth_basic_module](https://github.com/sxi3265/ngx_http_proxy_auth_basic_module) | `1.0.2` | ok |
 | [ngx_http_proxy_auth_internal_module](https://github.com/sxi3265/ngx_http_proxy_auth_internal_module) | `1.0.2` | ok |
 | [ngx_http_proxy_auth_netstorage_module](https://github.com/sxi3265/ngx_http_proxy_auth_netstorage_module) | `1.0.2` | ok |
