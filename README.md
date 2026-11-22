@@ -1,6 +1,6 @@
 # Name
 
-> **Self-maintained fork.** This is a snapshot fork of [HanadaLee/openresty](https://github.com/HanadaLee/openresty) (upstream release 1.31.9.1.395, snapshot commit `faa81e3f`) that builds from module mirrors hosted under [sxi3265](https://github.com/sxi3265?tab=repositories&q=ngx_) instead of `git.hanada.info`. See [MIRRORS.md](MIRRORS.md) for the full module manifest. Upstream base image registry (`dockerhub.hanada.info`) is replaced with Docker Hub.
+> **Self-maintained fork.** This is a snapshot fork of [HanadaLee/openresty](https://github.com/HanadaLee/openresty) (upstream release 1.31.9.1.397, snapshot commit `2e316e8e`) that builds from module mirrors hosted under [sxi3265](https://github.com/sxi3265?tab=repositories&q=ngx_) instead of `git.hanada.info`. See [MIRRORS.md](MIRRORS.md) for the full module manifest. Upstream base image registry (`dockerhub.hanada.info`) is replaced with Docker Hub.
 
 OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx and LuaJIT
 

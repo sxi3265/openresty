@@ -5,35 +5,33 @@ Upstream (HanadaLee/openresty) pins every module clone to a released tag, and th
 build clones those tags from these mirrors via `RESTY_GIT_REPO` (default
 `github.com/sxi3265`).
 
-Full tag re-snapshot from `git.hanada.info/hanada/*` completed 2026-11-20: 57 of
-58 pinned tags verified present. `ngx_tcp_fingerprint_module` is likewise
-mirrored (from github.com/HanadaLee) and the Dockerfile now clones it from here.
-
-Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` was initially blocked by GitHub push protection (upstream's example AWS key string) and was allowlisted and pushed on 2026-11-20; all 58 pins are present.
+Tag state re-verified 2026-11-22 (58/58 present after syncing releases
+1.31.9.1.396/.397). `ngx_tcp_fingerprint_module` is mirrored from
+github.com/HanadaLee and cloned from here as well.
 
 | module | pinned version | status |
 |---|---|---|
 | [lua-resty-cookie](https://github.com/sxi3265/lua-resty-cookie) | `0.5.0` | ok |
 | [lua-resty-mlcache](https://github.com/sxi3265/lua-resty-mlcache) | `2.7.1` | ok |
 | [ngx_backtrace_module](https://github.com/sxi3265/ngx_backtrace_module) | `0.1.1` | ok |
-| [ngx_expr_module](https://github.com/sxi3265/ngx_expr_module) | `1.0.2` | ok |
+| [ngx_expr_module](https://github.com/sxi3265/ngx_expr_module) | `1.0.3` | ok |
 | [ngx_geoip2_module](https://github.com/sxi3265/ngx_geoip2_module) | `3.5.0` | ok |
 | [ngx_http_access_control_module](https://github.com/sxi3265/ngx_http_access_control_module) | `1.0.0` | ok |
 | [ngx_http_auth_internal_module](https://github.com/sxi3265/ngx_http_auth_internal_module) | `1.0.0` | ok |
 | [ngx_http_cache_dechunk_filter_module](https://github.com/sxi3265/ngx_http_cache_dechunk_filter_module) | `1.0.1` | ok |
-| [ngx_http_cache_purge_module](https://github.com/sxi3265/ngx_http_cache_purge_module) | `5.1.4` | ok |
+| [ngx_http_cache_purge_module](https://github.com/sxi3265/ngx_http_cache_purge_module) | `5.1.6` | ok |
 | [ngx_http_compression_module](https://github.com/sxi3265/ngx_http_compression_module) | `1.0.1` | ok |
 | [ngx_http_cors_module](https://github.com/sxi3265/ngx_http_cors_module) | `0.1.1` | ok |
 | [ngx_http_delay_module](https://github.com/sxi3265/ngx_http_delay_module) | `1.0.0` | ok |
 | [ngx_http_error_log_write_module](https://github.com/sxi3265/ngx_http_error_log_write_module) | `1.0.0` | ok |
-| [ngx_http_extra_variables_module](https://github.com/sxi3265/ngx_http_extra_variables_module) | `1.0.2` | ok |
-| [ngx_http_grpc_filter_module](https://github.com/sxi3265/ngx_http_grpc_filter_module) | `1.0.2` | ok |
+| [ngx_http_extra_variables_module](https://github.com/sxi3265/ngx_http_extra_variables_module) | `1.0.3` | ok |
+| [ngx_http_grpc_filter_module](https://github.com/sxi3265/ngx_http_grpc_filter_module) | `1.0.3` | ok |
 | [ngx_http_grpc_headers_control_module](https://github.com/sxi3265/ngx_http_grpc_headers_control_module) | `1.0.1` | ok |
 | [ngx_http_grpc_set_module](https://github.com/sxi3265/ngx_http_grpc_set_module) | `1.0.2` | ok |
 | [ngx_http_headers_control_module](https://github.com/sxi3265/ngx_http_headers_control_module) | `1.0.1` | ok |
 | [ngx_http_internal_redirect_module](https://github.com/sxi3265/ngx_http_internal_redirect_module) | `1.0.0` | ok |
 | [ngx_http_label_module](https://github.com/sxi3265/ngx_http_label_module) | `1.0.0` | ok |
-| [ngx_http_limit_traffic_rate_filter_module](https://github.com/sxi3265/ngx_http_limit_traffic_rate_filter_module) | `2.1.0` | ok |
+| [ngx_http_limit_traffic_rate_filter_module](https://github.com/sxi3265/ngx_http_limit_traffic_rate_filter_module) | `2.1.1` | ok |
 | [ngx_http_log_set_module](https://github.com/sxi3265/ngx_http_log_set_module) | `1.0.0` | ok |
 | [ngx_http_loop_detect_module](https://github.com/sxi3265/ngx_http_loop_detect_module) | `1.0.0` | ok |
 | [ngx_http_phase_control_module](https://github.com/sxi3265/ngx_http_phase_control_module) | `1.0.0` | ok |
@@ -42,7 +40,7 @@ Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` was initially blocked by
 | [ngx_http_proxy_auth_basic_module](https://github.com/sxi3265/ngx_http_proxy_auth_basic_module) | `1.0.2` | ok |
 | [ngx_http_proxy_auth_internal_module](https://github.com/sxi3265/ngx_http_proxy_auth_internal_module) | `1.0.2` | ok |
 | [ngx_http_proxy_auth_netstorage_module](https://github.com/sxi3265/ngx_http_proxy_auth_netstorage_module) | `1.0.2` | ok |
-| [ngx_http_proxy_filter_module](https://github.com/sxi3265/ngx_http_proxy_filter_module) | `1.0.2` | ok |
+| [ngx_http_proxy_filter_module](https://github.com/sxi3265/ngx_http_proxy_filter_module) | `1.0.3` | ok |
 | [ngx_http_proxy_headers_control_module](https://github.com/sxi3265/ngx_http_proxy_headers_control_module) | `1.0.1` | ok |
 | [ngx_http_proxy_request_cookies_control_module](https://github.com/sxi3265/ngx_http_proxy_request_cookies_control_module) | `1.1.1` | ok |
 | [ngx_http_proxy_set_module](https://github.com/sxi3265/ngx_http_proxy_set_module) | `1.0.2` | ok |
@@ -58,15 +56,15 @@ Exception: `ngx_http_proxy_auth_aws_module` tag `2.1.4` was initially blocked by
 | [ngx_http_sysguard_module](https://github.com/sxi3265/ngx_http_sysguard_module) | `0.2.0` | ok |
 | [ngx_http_trim_filter_module](https://github.com/sxi3265/ngx_http_trim_filter_module) | `3.1.5` | ok |
 | [ngx_http_ua_parser_module](https://github.com/sxi3265/ngx_http_ua_parser_module) | `1.0.0` | ok |
-| [ngx_http_upstream_log_module](https://github.com/sxi3265/ngx_http_upstream_log_module) | `1.0.2` | ok |
+| [ngx_http_upstream_log_module](https://github.com/sxi3265/ngx_http_upstream_log_module) | `1.0.3` | ok |
 | [ngx_lua_config_module](https://github.com/sxi3265/ngx_lua_config_module) | `1.0.0` | ok |
-| [ngx_lua_load_var_index_module](https://github.com/sxi3265/ngx_lua_load_var_index_module) | `1.0.0` | ok |
-| [ngx_lua_upstream_state_module](https://github.com/sxi3265/ngx_lua_upstream_state_module) | `1.0.2` | ok |
-| [ngx_ssl_fingerprint_module](https://github.com/sxi3265/ngx_ssl_fingerprint_module) | `1.0.1` | ok |
+| [ngx_lua_load_var_index_module](https://github.com/sxi3265/ngx_lua_load_var_index_module) | `1.0.1` | ok |
+| [ngx_lua_upstream_state_module](https://github.com/sxi3265/ngx_lua_upstream_state_module) | `1.0.3` | ok |
+| [ngx_ssl_fingerprint_module](https://github.com/sxi3265/ngx_ssl_fingerprint_module) | `1.0.2` | ok |
 | [ngx_stat_module](https://github.com/sxi3265/ngx_stat_module) | `1.0.0` | ok |
 | [ngx_stream_access_control_module](https://github.com/sxi3265/ngx_stream_access_control_module) | `1.0.0` | ok |
 | [ngx_stream_error_log_write_module](https://github.com/sxi3265/ngx_stream_error_log_write_module) | `1.0.0` | ok |
-| [ngx_stream_extra_variables_module](https://github.com/sxi3265/ngx_stream_extra_variables_module) | `1.0.2` | ok |
+| [ngx_stream_extra_variables_module](https://github.com/sxi3265/ngx_stream_extra_variables_module) | `1.0.3` | ok |
 | [ngx_stream_label_module](https://github.com/sxi3265/ngx_stream_label_module) | `1.0.0` | ok |
 | [ngx_stream_log_set_module](https://github.com/sxi3265/ngx_stream_log_set_module) | `1.0.0` | ok |
 | [ngx_stream_lua_upstream_module](https://github.com/sxi3265/ngx_stream_lua_upstream_module) | `1.0.0` | ok |
