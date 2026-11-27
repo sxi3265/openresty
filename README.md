@@ -68,6 +68,9 @@ OpenResty - A High Performance Web Server and CDN Cache Server Based on Nginx an
     - [Conditional upstream directives](#conditional-upstream-directives)
     - [Support for inheritance in "proxy\_set\_header" and its friends](#support-for-inheritance-in-proxy_set_header-and-its-friends)
     - [Enhancement of upstream cookie handler](#enhancement-of-upstream-cookie-handler)
+    - [proxy\_cache\_lock\_early\_read](#proxy_cache_lock_early_read)
+    - [proxy\_cache\_lock\_expired](#proxy_cache_lock_expired)
+    - [proxy\_cache\_lock\_poll\_interval](#proxy_cache_lock_poll_interval)
     - [Persistent cache zones](#persistent-cache-zones)
     - [Enhancement of upstream cache control](#enhancement-of-upstream-cache-control)
   - [ngx\_http\_upstream\_module](#ngx_http_upstream_module)
@@ -132,9 +135,7 @@ only the explicit runtime packages, and copies the cleaned
 `/usr/local/openresty` tree. The bundle archive, compiler toolchain, and other
 build-stage files are therefore not retained in the published image.
 
-`RESTY_VERSION` is read from `util/ver` at the pinned commit. `RESTY_RELEASE`
-remains a local, monotonically increasing bundle release. A local image can be
-built directly from the repository root:
+`RESTY_VERSION` is derived from `util/ver` at the pinned commit and the optional nginx overlay. `RESTY_RELEASE` remains a local, monotonically increasing bundle release. A local image can be built directly from the repository root:
 
 ```shell
 docker build --tag openresty:local .
@@ -162,6 +163,10 @@ name. The patches in this repository target the bundle produced by the pinned
 commit and must be regenerated or revalidated whenever that commit changes.
 The default `RESTY_REPOSITORY` is derived from `RESTY_GIT_MIRROR`, so overriding
 the mirror also applies to the pinned OpenResty source checkout.
+
+`RESTY_NGINX_OVERRIDE` selects the nginx version in the bundle. The build applies `patches/nginx-overlay/<bundled-nginx>-to-<target-nginx>.patch` before the extension patches. Other components come from `RESTY_COMMIT`. The bundle version combines the target nginx version with the fourth component of the pinned OpenResty version.
+
+Pass `--build-arg RESTY_NGINX_OVERRIDE=` to use the pinned OpenResty bundle without an overlay. Use `RESTY_NGINX_OVERRIDE= bash util/openresty-version.sh` to print the corresponding bundle version.
 
 The patched nginx configure script accepts `--without-client` to disable the internal HTTP client and `--without-ext` to disable all nginx-ext features. Add-on modules can test `NGX_EXT` and `NGX_CLIENT` at compile time.
 
@@ -195,6 +200,8 @@ NGINX_TESTS_ROOT=/path/to/nginx-tests \
 bash util/run-tests.sh
 ```
 
+The `nginx-tests` suite includes cross-worker tests for [proxy_cache_lock_early_read](#proxy_cache_lock_early_read). HTTP/2 cancellation uses `IO::Socket::SSL` with ALPN; HTTP/3 cancellation uses `CryptX`.
+
 [Back to TOC](#table-of-contents)
 
 # Components
@@ -216,7 +223,6 @@ See [Module Overview](#module-overview) for the additional nginx modules and the
 * [luarocks](https://luarocks.org/)
 * [lua-resty-multipart-parser](https://github.com/agentzh/lua-resty-multipart-parser)
 * [lua-resty-balancer](https://github.com/OpenResty/lua-resty-balancer)
-* [jsonschema](https://github.com/api7/jsonschema)
 * [lua-resty-mlcache](https://git.hanada.info/hanada/lua-resty-mlcache)
 * [lua-lolhtml](https://git.hanada.info/hanada/lua-lolhtml)
 
@@ -234,6 +240,7 @@ See [Module Overview](#module-overview) for the additional nginx modules and the
 * lua-resty-openssl
 * lua-resty-http
 * lua-resty-hmac-ffi
+* lua-resty-ljsonschema
 * lua-resty-jwt
 * lua-resty-session
 * lua-resty-openidc
@@ -454,7 +461,7 @@ local name, err = ngx.resolve("192.0.2.1", "ptr")
 
 The `ptr` mode accepts an IPv4 or IPv6 address and returns its PTR hostname, or `nil, err` on lookup failure.
 
-Uses the resolver and timeout of the current HTTP location or Stream server. Available in HTTP server rewrite, rewrite, preaccess, access, precontent, and content, in Stream access, preread, and content, and in timers in both subsystems. Resolve upstream names before entering the balancer phase.
+The API follows the [ngx.resolve proposal](https://github.com/openresty/lua-nginx-module/pull/1478). It uses the resolver and timeout of the current HTTP location or Stream server. Available in HTTP server rewrite, rewrite, preaccess, access, precontent, and content, in Stream access, preread, and content, and in timers in both subsystems. Resolve upstream names before entering the balancer phase.
 
 [Back to TOC](#table-of-contents)
 
@@ -512,6 +519,8 @@ server {
 }
 ```
 
+The internal request implementation is adapted from [Angie’s HTTP client module](https://github.com/webserver-llc/angie/commit/d17c5df825f2afdd7f5134b668d35a0b0d546544).
+
 The proxy destination uses the URL scheme and host. `$is_request_port$request_port` includes the colon and port only when the URL specifies a port. The caller supplies the HTTP `Host` header. Configure a `resolver` for destinations that require DNS.
 
 [Back to TOC](#table-of-contents)
@@ -531,6 +540,8 @@ Sets the maximum number of upstream TLS sessions each worker caches for peers se
 ### ngx.fs
 
 Available in HTTP and Stream Lua contexts that can yield, including timers. The optional pool name defaults to `default_lua_io`. Define it with [thread_pool](https://nginx.org/en/docs/ngx_core_module.html#thread_pool).
+
+The API is adapted from the [lua-nginx-module asynchronous file I/O proposal](https://github.com/openresty/lua-nginx-module/pull/2489).
 
 | Operation | Description |
 | --- | --- |
@@ -928,7 +939,7 @@ Sets the intermediate record size. The default accounts for three TCP segments: 
 
 * **Context:** *http, server*
 
-Visit [ngx_http_tls_dyn_size](https://github.com/nginx-modules/ngx_http_tls_dyn_size) repository for more information.
+Dynamic record sizing is based on [Vlad Krasnov’s patch for Cloudflare](https://github.com/cloudflare/sslconfig/tree/3e45b99/patches).
 
 ### Variables about SSL handshake timestamps and time spent
 
@@ -954,7 +965,9 @@ New variables are introduced to get the start timestamp, end timestamp, and time
 
 Refer to [slice](https://nginx.org/en/docs/http/ngx_http_slice_module.html#slice) for the original directive behavior. The original size argument is moved to `slice_size`. This directive accepts `on` or `off` and supports conditional configuration through `when`.
 
-When slicing is enabled, multipart byte-range requests are supported, including reordered and overlapping ranges.
+When slicing is enabled, multipart byte-range requests are supported, including reordered and overlapping ranges. Design references: [Jayce’s analysis of multi-range requests with slice](https://jayce.github.io/public/posts/nginx/multi-ranges-with-slice/) and [DenizUgur’s prototype](https://github.com/DenizUgur/nginx/tree/770ec4f193bd7e8f90ea6c2ccb05ccf78355acfa).
+
+Background cache updates retain the range of the slice being refreshed. Based on a [patch by J Carter](https://mailman.nginx.org/pipermail/nginx-devel/2024-June/M4X5EZSRTQQ6HQ5BAOBFPM7DL5QWEAZ7.html).
 
 ### slice_size
 
@@ -1288,6 +1301,40 @@ Prevents Set-Cookie headers from being passed when the response is served from c
 
 > fastcgi_cache_hide_cookies, scgi_cache_hide_cookies and uwsgi_cache_hide_cookies directives are also available.
 
+### proxy_cache_lock_early_read
+
+**Syntax:** `proxy_cache_lock_early_read on | off;`\
+**Default:** `proxy_cache_lock_early_read off;`\
+**Context:** `http`, `server`, `location`, `when`
+
+Allows a request waiting for [proxy_cache_lock](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock) to read a response while its cache file is being written, including across workers. Requires proxy buffering and `use_temp_path=off` on a local file system. The lock timeout applies until the reader joins the fill.
+
+Eligible responses are fixed-length `200` and single-range `206` responses without `Vary`, `Set-Cookie`, or `Content-Encoding`. Cache partial responses under a key that distinguishes ranges. When using slice, include `$slice_range` in the key as described in the [slice module documentation](https://nginx.org/en/docs/http/ngx_http_slice_module.html#slice). Authenticated, cookie-bearing and conditional requests use the regular cache path. A reader that joins a fill reports `MISS`; a subsequent hit reports `HIT`.
+
+The shared temporary file design is based on [CDN77’s patch series](https://mailman.nginx.org/pipermail/nginx-devel/2022-January/7L5VS5E2RS4GG3GQF3H24IKS7QLZYFVV.html) by Jiří Setnička and Jan Prachař.
+
+Early reads with cache purge require support for in-flight invalidation. A URL or key purge fences in-flight reads for the corresponding namespace and URL. A broader purge, or a reader that falls outside the retained purge history, can interrupt other in-flight reads.
+
+### proxy_cache_lock_expired
+
+**Syntax:** `proxy_cache_lock_expired on | off;`\
+**Default:** `proxy_cache_lock_expired off;`\
+**Context:** `http`, `server`, `location`, `when`
+
+Extends [proxy_cache_lock](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock) to expired responses. Requests that cannot use the stale response wait for the first request to refresh it. A request that times out is passed upstream without writing its response to the cache.
+
+Based on a [patch by Elliot Thomas](https://mailman.nginx.org/pipermail/nginx-devel/2019-June/012302.html).
+
+### proxy_cache_lock_poll_interval
+
+**Syntax:** `proxy_cache_lock_poll_interval time;`\
+**Default:** `proxy_cache_lock_poll_interval 500ms;`\
+**Context:** `http`, `server`, `location`, `when`
+
+Sets the maximum interval between checks of a cache lock or an in-progress cache file. The interval must be greater than zero. When early readers share a timer, the shortest interval applies.
+
+Based on a [proposal by Nejc Lovrencic](https://mailman.nginx.org/pipermail/nginx-devel/2024-March/XZ77NIM4V27W44Z75PRHCR6OA56SYOFT.html).
+
 ### Persistent cache zones
 
 Refer to [proxy_cache_path](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_path), [fastcgi_cache_path](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache_path), [scgi_cache_path](https://nginx.org/en/docs/http/ngx_http_scgi_module.html#scgi_cache_path), and [uwsgi_cache_path](https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_cache_path) for the original directive behavior.
@@ -1303,10 +1350,10 @@ proxy_cache_path /var/cache/nginx/content
 Use a separate state file for each zone and keep its configured size
 unchanged when restoring it. The state directory must exist and be writable
 by the nginx master process. A reload keeps the live zone; a graceful stop
-such as `nginx -s quit` saves it. `SIGKILL` does not save a snapshot.
+such as `nginx -s quit` saves it. `SIGKILL` does not save a snapshot. An incompatible keys-zone snapshot is renamed with the `.old` suffix. Cached response files remain usable.
 
 `fastcgi_cache_path`, `scgi_cache_path`, and `uwsgi_cache_path` support
-the same parameter.
+the same parameter. Shared-memory persistence is ported from [Angie’s shared-zone snapshots](https://github.com/webserver-llc/angie/commit/09bd7dc6dc0c10f68713a1f9153ca92e2c91b257) and [cache zone restore](https://github.com/webserver-llc/angie/commit/4cebcf43a911eb4531f7365c3c23babfd99dd371) by Vladimir Khomutov.
 
 ### Enhancement of upstream cache control
 
@@ -1644,7 +1691,7 @@ A matching `off` stops subsequent `access_log` entries at the selected level.
 
 Refer to [ngx_http_modsecurity_module](https://github.com/owasp-modsecurity/ModSecurity-nginx).
 
-This module connects NGINX/OpenResty with libModSecurity v3. This bundle applies an additional patch that adds log variables for ModSecurity interventions and matched rule IDs, skips deleted request/response headers, and adds `modsecurity_bypass`.
+This module connects NGINX/OpenResty with libModSecurity v3. This bundle applies a ModSecurity connector patch that adds log variables for ModSecurity interventions and matched rule IDs, skips deleted request/response headers, and adds `modsecurity_bypass`.
 
 ### modsecurity_bypass
 

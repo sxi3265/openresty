@@ -1,8 +1,8 @@
-# Intentionally empty: the version is read from util/ver at RESTY_COMMIT so it
-# is not pinned separately from the upstream source revision.
+# Derived from upstream util/ver and the optional nginx overlay.
 ARG RESTY_VERSION
-ARG RESTY_RELEASE="397"
-ARG RESTY_COMMIT="8f1a374d79d849c4b2f6e4f35639aac70ab02985"
+ARG RESTY_NGINX_OVERRIDE="1.31.10"
+ARG RESTY_RELEASE="400"
+ARG RESTY_COMMIT="fd029bbd07cd4bcf0a152c002063a631db4dfeb7"
 ARG RESTY_J="4"
 ARG RESTY_IMAGE_BASE="debian"
 ARG RESTY_IMAGE_TAG="trixie-slim"
@@ -10,22 +10,21 @@ ARG RESTY_GIT_MIRROR="github.com"
 ARG RESTY_GIT_RAW_MIRROR="raw.githubusercontent.com"
 ARG RESTY_GIT_REPO="github.com/sxi3265"
 ARG RESTY_REPOSITORY="https://${RESTY_GIT_MIRROR}/openresty/openresty.git"
-ARG RESTY_RUST_VERSION="1.89.0"
+ARG RESTY_RUST_VERSION="1.100.0"
 ARG RESTY_LUAROCKS_VERSION="3.13.0"
 ARG RESTY_LUA_RESTY_BALANCER_VERSION="0.05"
-ARG RESTY_LUA_RESTY_MLCACHE_VERSION="2.7.1"
+ARG RESTY_LUA_RESTY_MLCACHE_VERSION="2.8.0"
 ARG RESTY_LUA_RESTY_COOKIE_VERSION="0.5.0"
-ARG RESTY_JSONSCHEMA_VERSION="0.9.13"
 ARG RESTY_LIBMAXMINDDB_VERSION="1.14.1"
 ARG RESTY_OPENSSL_VERSION="3.5.9"
 ARG RESTY_OPENSSL_PATCH_VERSION="3.5.5"
 ARG RESTY_PCRE_VERSION="10.49"
-ARG RESTY_ZLIB_VERSION="1.3.2"
-ARG RESTY_ZSTD_VERSION="1.5.7"
+ARG RESTY_ZLIB_VERSION="1.4"
+ARG RESTY_ZSTD_VERSION="1.6.0"
 ARG RESTY_BROTLI_VERSION="1.2.1"
 ARG RESTY_LIBVIPS_VERSION="8.18.7"
 ARG RESTY_MODSECURITY_VERSION="3.0.17"
-ARG RESTY_OWSAP_CRS_VERSION="4.30.0"
+ARG RESTY_OWSAP_CRS_VERSION="4.31.0"
 
 # LuaRocks packages.
 ARG RESTY_LUA_LOLHTML_VERSION="1.1.0-1"
@@ -35,7 +34,7 @@ ARG RESTY_LUAFILESYSTEM_VERSION="1.9.0-1"
 ARG RESTY_PENLIGHT_VERSION="1.15.0-1"
 ARG RESTY_NET_URL_VERSION="1.2-1"
 ARG RESTY_API7_DKJSON_VERSION="0.1.1-0"
-ARG RESTY_LYAML_VERSION="6.2.9-2"
+ARG RESTY_LYAML_VERSION="6.2.10-1"
 ARG RESTY_LRANDOM_VERSION="20180729-1"
 ARG RESTY_LUAXXHASH_VERSION="1.0.0-1"
 ARG RESTY_XML2LUA_VERSION="1.6-2"
@@ -43,9 +42,10 @@ ARG RESTY_LUA_FFI_ZLIB_VERSION="0.6-0"
 ARG RESTY_LUA_RESTY_OPENSSL_VERSION="1.10.0-1"
 ARG RESTY_LUA_RESTY_HTTP_VERSION="0.18.0-0"
 ARG RESTY_LUA_RESTY_HMAC_FFI_VERSION="0.06-1"
+ARG RESTY_LUA_RESTY_LJSONSCHEMA_VERSION="1.2.0-2"
 ARG RESTY_LUA_RESTY_JWT_VERSION="0.4.0-1"
 ARG RESTY_LUA_RESTY_SESSION_VERSION="4.2.0-1"
-ARG RESTY_LUA_RESTY_OPENIDC_VERSION="1.9.2-1"
+ARG RESTY_LUA_RESTY_OPENIDC_VERSION="1.9.3-1"
 ARG RESTY_LUA_RESTY_TIMER_VERSION="1.1.0-1"
 ARG RESTY_LUA_RESTY_KAFKA_VERSION="0.23-0"
 ARG RESTY_LUA_RESTY_TEMPLATE_VERSION="2.0-1"
@@ -54,7 +54,7 @@ ARG RESTY_LUA_RESTY_HEALTHCHECK_VERSION="3.1.2-1"
 ARG RESTY_LUA_RESTY_IPMATCHER_VERSION="0.6.1-0"
 ARG RESTY_LUA_RESTY_EXPR_VERSION="1.3.2-0"
 ARG RESTY_API7_LUA_RESTY_REDIS_CONNECTOR_VERSION="0.13.0-0"
-ARG RESTY_LUA_RESTY_REDIS_CLUSTER_VERSION="1.3.3-0"
+ARG RESTY_LUA_RESTY_REDIS_CLUSTER_VERSION="1.3.5-0"
 ARG RESTY_LUA_RESTY_TIMER_NG_VERSION="0.2.7-1"
 ARG RESTY_LUA_RESTY_MAXMINDDB_VERSION="1.3.7-1"
 ARG RESTY_LUA_RESTY_M3U8_VERSION="0.2-0"
@@ -72,36 +72,36 @@ ARG RESTY_NGX_HTTP_SECURE_LINK_HMAC_MODULE_VERSION="0.4.0"
 ARG RESTY_NGX_HTTP_SECURE_LINK_SIGN_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_AUTH_INTERNAL_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_CACHE_DECHUNK_FILTER_MODULE_VERSION="1.0.1"
-ARG RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION="5.1.6"
-ARG RESTY_NGX_HTTP_COMPRESSION_MODULE_VERSION="1.0.1"
+ARG RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION="5.1.8"
+ARG RESTY_NGX_HTTP_COMPRESSION_MODULE_VERSION="1.0.2"
 ARG RESTY_NGX_HTTP_CORS_MODULE_VERSION="0.1.1"
 ARG RESTY_NGX_HTTP_DELAY_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_ERROR_LOG_WRITE_MODULE_VERSION="1.0.0"
-ARG RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION="1.0.3"
-ARG RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION="1.0.3"
+ARG RESTY_NGX_HTTP_EXTRA_VARIABLES_MODULE_VERSION="1.1.0"
+ARG RESTY_NGX_HTTP_GRPC_FILTER_MODULE_VERSION="1.0.4"
 ARG RESTY_NGX_HTTP_GRPC_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
 ARG RESTY_NGX_HTTP_GRPC_SET_MODULE_VERSION="1.0.2"
 ARG RESTY_NGX_HTTP_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
-ARG RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION="1.0.0"
+ARG RESTY_NGX_HTTP_INTERNAL_REDIRECT_MODULE_VERSION="2.0.0"
 ARG RESTY_NGX_HTTP_LABEL_MODULE_VERSION="1.0.0"
-ARG RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION="2.1.1"
+ARG RESTY_NGX_HTTP_LIMIT_TRAFFIC_RATE_FILTER_MODULE_VERSION="2.1.2"
 ARG RESTY_NGX_HTTP_LOG_SET_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_LOOP_DETECT_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_MODSECURITY_MODULE_COMMIT="b7cf44e57bc386bc5c15e5c9319e6b6b719357f2"
 ARG RESTY_NGX_HTTP_PHASE_CONTROL_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_PROXY_ARGS_CONTROL_MODULE_VERSION="1.0.1"
-ARG RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION="2.1.4"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_AWS_MODULE_VERSION="2.1.5"
 ARG RESTY_NGX_HTTP_PROXY_AUTH_BASIC_MODULE_VERSION="1.0.2"
-ARG RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION="1.0.2"
+ARG RESTY_NGX_HTTP_PROXY_AUTH_INTERNAL_MODULE_VERSION="1.0.3"
 ARG RESTY_NGX_HTTP_PROXY_AUTH_NETSTORAGE_MODULE_VERSION="1.0.2"
-ARG RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION="1.0.3"
+ARG RESTY_NGX_HTTP_PROXY_FILTER_MODULE_VERSION="1.0.4"
 ARG RESTY_NGX_HTTP_PROXY_HEADERS_CONTROL_MODULE_VERSION="1.0.1"
 ARG RESTY_NGX_HTTP_PROXY_REQUEST_COOKIES_CONTROL_MODULE_VERSION="1.1.1"
 ARG RESTY_NGX_HTTP_PROXY_SET_MODULE_VERSION="1.0.2"
 ARG RESTY_NGX_HTTP_QRCODE_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_REPLACE_FILTER_MODULE_COMMIT="0b432c649d2dc27ca7cf122ed06ff24fd9d7b3cf"
 ARG RESTY_NGX_HTTP_REWRITE_STATUS_FILTER_MODULE_VERSION="1.0.0"
-ARG RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION="0.1.2"
+ARG RESTY_NGX_HTTP_SECURITY_HEADERS_FILTER_MODULE_VERSION="0.1.3"
 ARG RESTY_NGX_HTTP_SERVER_REDIRECT_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_HTTP_SSL_STRICT_SERVER_NAME_MODULE_VERSION="1.0.3"
 ARG RESTY_NGX_HTTP_SORTED_ARGS_MODULE_VERSION="0.3.1"
@@ -113,17 +113,17 @@ ARG RESTY_NGX_HTTP_WESERV_MODULE_VERSION="v5.1.2"
 ARG RESTY_NGX_LUA_CONFIG_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_LUA_EVENTS_MODULE_VERSION="0.3.1"
 ARG RESTY_NGX_LUA_LOAD_VAR_INDEX_MODULE_VERSION="1.0.1"
-ARG RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION="1.0.3"
+ARG RESTY_NGX_LUA_UPSTREAM_STATE_MODULE_VERSION="1.0.4"
 ARG RESTY_NGX_SSL_FINGERPRINT_MODULE_VERSION="1.0.2"
 ARG RESTY_NGX_STAT_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_STREAM_ACCESS_CONTROL_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_STREAM_ERROR_LOG_WRITE_MODULE_VERSION="1.0.0"
-ARG RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION="1.0.3"
+ARG RESTY_NGX_STREAM_EXTRA_VARIABLES_MODULE_VERSION="1.1.0"
 ARG RESTY_NGX_STREAM_LABEL_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_STREAM_LOG_SET_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_STREAM_LUA_UPSTREAM_MODULE_VERSION="1.0.0"
 ARG RESTY_NGX_TCP_FINGERPRINT_MODULE_VERSION="v0.2.0"
-ARG RESTY_NGX_VAR_MODULE_VERSION="1.1.0"
+ARG RESTY_NGX_VAR_MODULE_VERSION="1.2.1"
 
 FROM docker.io/rust:${RESTY_RUST_VERSION}-slim-trixie AS rust-toolchain
 
@@ -132,9 +132,12 @@ FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-bundle
 ARG RESTY_GIT_MIRROR
 ARG RESTY_REPOSITORY
 ARG RESTY_COMMIT
+ARG RESTY_NGINX_OVERRIDE
 ARG RESTY_J
 
 COPY util/rewrite-openresty-archives.sh /usr/local/bin/rewrite-openresty-archives
+COPY util/nginx-overlay.sh /usr/local/bin/nginx-overlay
+COPY patches/nginx-overlay/ /nginx-overlay/
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -158,10 +161,17 @@ RUN mkdir -p /build/openresty \
          /build/openresty/util/mirror-tarballs \
          "${RESTY_GIT_MIRROR}" \
     && cd /build/openresty \
-    && RESTY_VERSION="$(./util/ver)" \
-    && test -n "${RESTY_VERSION}" \
+    && UPSTREAM_VERSION="$(./util/ver)" \
+    && OPENRESTY_DIR="openresty-${UPSTREAM_VERSION}" \
     && MIRROR_JOBS="${RESTY_J}" make \
-    && mv "openresty-${RESTY_VERSION}.tar.gz" /openresty.tar.gz \
+    && RESTY_VERSION="$(bash /usr/local/bin/nginx-overlay apply \
+         "$OPENRESTY_DIR" "$UPSTREAM_VERSION" "$RESTY_NGINX_OVERRIDE" /nginx-overlay)" \
+    && if [ "$RESTY_VERSION" = "$UPSTREAM_VERSION" ]; then \
+         mv "$OPENRESTY_DIR.tar.gz" /openresty.tar.gz; \
+       else \
+         mv "$OPENRESTY_DIR" "openresty-${RESTY_VERSION}" \
+         && tar -czf /openresty.tar.gz "openresty-${RESTY_VERSION}"; \
+       fi \
     && printf '%s\n' "${RESTY_VERSION}" > /openresty-version
 
 FROM docker.io/${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG} AS openresty-build
@@ -177,7 +187,6 @@ ARG RESTY_LUAROCKS_VERSION
 ARG RESTY_LUA_RESTY_BALANCER_VERSION
 ARG RESTY_LUA_RESTY_MLCACHE_VERSION
 ARG RESTY_LUA_RESTY_COOKIE_VERSION
-ARG RESTY_JSONSCHEMA_VERSION
 ARG RESTY_LIBMAXMINDDB_VERSION
 ARG RESTY_OPENSSL_VERSION
 ARG RESTY_OPENSSL_PATCH_VERSION
@@ -226,6 +235,7 @@ ARG RESTY_LUA_FFI_ZLIB_VERSION
 ARG RESTY_LUA_RESTY_OPENSSL_VERSION
 ARG RESTY_LUA_RESTY_HTTP_VERSION
 ARG RESTY_LUA_RESTY_HMAC_FFI_VERSION
+ARG RESTY_LUA_RESTY_LJSONSCHEMA_VERSION
 ARG RESTY_LUA_RESTY_JWT_VERSION
 ARG RESTY_LUA_RESTY_SESSION_VERSION
 ARG RESTY_LUA_RESTY_OPENIDC_VERSION
@@ -582,7 +592,6 @@ RUN mkdir -p /build/modules \
 RUN mkdir -p /build/lualib \
     && cd /build/lualib \
     && git clone --depth=1 --branch v${RESTY_LUA_RESTY_BALANCER_VERSION} https://${RESTY_GIT_MIRROR}/openresty/lua-resty-balancer.git lua-resty-balancer \
-    && git clone --depth=1 --branch v${RESTY_JSONSCHEMA_VERSION} https://${RESTY_GIT_MIRROR}/api7/jsonschema.git jsonschema \
     && git clone --depth=1 --branch ${RESTY_LUA_RESTY_MLCACHE_VERSION} https://${RESTY_GIT_REPO}/lua-resty-mlcache.git lua-resty-mlcache \
     && git clone --depth=1 --branch "${RESTY_LUA_RESTY_COOKIE_VERSION}" https://${RESTY_GIT_REPO}/lua-resty-cookie.git lua-resty-cookie
 
@@ -616,7 +625,7 @@ RUN cd /build/lib/libmaxminddb-${RESTY_LIBMAXMINDDB_VERSION} \
     && ldconfig \
     && cd /build/lib/openssl-${RESTY_OPENSSL_VERSION} \
     && echo 'patching OpenSSL 3.x for OpenResty' \
-    && curl -fSLv https://${RESTY_GIT_RAW_MIRROR}/openresty/openresty/${RESTY_COMMIT}/patches/openssl-${RESTY_OPENSSL_PATCH_VERSION}-sess_set_get_cb_yield.patch | patch -p1 \
+    && curl -fSLv https://${RESTY_GIT_RAW_MIRROR}/openresty/openresty/${RESTY_COMMIT}/patches/openssl-${RESTY_OPENSSL_PATCH_VERSION}-sess_set_get_cb_yield.patch | patch --force -p1 \
     && ./config \
         shared zlib enable-brotli enable-zstd -g \
         --libdir=lib \
@@ -684,74 +693,82 @@ RUN RESTY_VERSION="$(cat /build/openresty-version)" \
     && NGINX_DIR="${OPENRESTY_DIR}/bundle/nginx-${NGINX_VERSION}" \
     && cd /build/modules/ngx_tcp_fingerprint_module \
     && echo 'patching ngx_tcp_fingerprint_module to remove RTT collection' \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_tcp_fingerprint_module-no-rtt_0.2.0+.patch \
+    && patch --force -p1 < /build/patches/ngx_tcp_fingerprint_module-no-rtt_0.2.0+.patch \
     && cd /build/modules/ngx_http_modsecurity_module \
     && echo 'patching ngx_http_modsecurity_module' \
-    && patch -p1 < /build/patches/ngx_http_modsecurity_module-ext_1.0.4-18-gb7cf44e+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_modsecurity_module-ext_1.0.4-18-gb7cf44e+.patch \
     && cd /build/modules/ngx_http_loop_detect_module \
     && echo 'patching ngx_http_loop_detect_module' \
-    && patch -p1 < /build/patches/ngx_http_loop_detect_module-cdn_id_1.0.0+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_loop_detect_module-cdn_id_1.0.0+.patch \
     && cd "${OPENRESTY_DIR}" \
     && echo "patching openresty-${RESTY_VERSION}" \
-    && patch -p1 < /build/patches/openresty-fix_prefix_1.27.1.2+.patch \
+    && patch --force -p1 < /build/patches/openresty-fix_prefix_1.27.1.2+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_stream_lua-* \
     && echo "patching ngx_stream_lua_module" \
-    && patch -p1 < /build/patches/ngx_stream_lua_module-expose_request_struct_0.0.18RC2+.patch \
-    && patch -p1 < /build/patches/ngx_stream_lua_module-access_by_lua_0.0.18RC2+.patch \
-    && patch -p1 < /build/patches/ngx_stream_lua_module-resolve_0.0.18RC2+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-expose_request_struct_0.0.18RC2+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-access_by_lua_0.0.18RC2+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-resolve_0.0.18RC2+.patch \
     && echo "patching ngx_stream_lua_module for ngx.fs" \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_stream_lua_module-async_fs_0.0.20rc4+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_stream_lua_module-http_client_0.0.20rc4+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_stream_lua_module-balancer_ssl_session_0.0.20rc4+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-async_fs_0.0.20rc4+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-http_client_0.0.20rc4+.patch \
+    && patch --force -p1 < /build/patches/ngx_stream_lua_module-balancer_ssl_session_0.0.20rc4+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/lua-resty-websocket-* \
     && echo "patching lua-resty-websocket" \
-    && patch -p1 < /build/patches/lua-resty-websocket-fix_stream_0.13+.patch \
+    && patch --force -p1 < /build/patches/lua-resty-websocket-fix_stream_0.13+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/lua-resty-core-* \
     && echo "patching lua-resty-core for preaccess_by_lua" \
-    && patch -p1 < /build/patches/lua-resty-core-preaccess_by_lua_0.1.34rc1+.patch \
-    && patch -p1 < /build/patches/lua-resty-core-resolve_0.1.33RC1+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/lua-resty-core-http_client_0.1.35rc3+.patch \
+    && patch --force -p1 < /build/patches/lua-resty-core-preaccess_by_lua_0.1.34rc1+.patch \
+    && patch --force -p1 < /build/patches/lua-resty-core-resolve_0.1.33RC1+.patch \
+    && patch --force -p1 < /build/patches/lua-resty-core-http_client_0.1.35rc3+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_lua-* \
     && echo "patching ngx_http_lua_module for preaccess_by_lua" \
-    && patch -p1 < /build/patches/ngx_http_lua_module-preaccess_by_lua_0.10.31rc1+.patch \
-    && patch -p1 < /build/patches/ngx_http_lua_module-resolve_0.10.31rc1+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-preaccess_by_lua_0.10.31rc1+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-resolve_0.10.31rc1+.patch \
     && echo "patching ngx_http_lua_module for native ClientHello retry" \
-    && patch -p1 < /build/patches/ngx_http_lua_module-client_hello_retry_0.10.29rc1+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-client_hello_retry_0.10.29rc1+.patch \
     && cd "${NGINX_DIR}" \
     && echo "patching nginx-${NGINX_VERSION} ext" \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/nginx-ext_1.31.9+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/nginx-stream_proxy_ssl_alpn_1.31.9+.patch \
+    && NGINX_EXT_PATCH="/build/patches/nginx-ext_${NGINX_VERSION}+.patch" \
+    && if [ ! -f "$NGINX_EXT_PATCH" ]; then \
+         NGINX_EXT_PATCH=/build/patches/nginx-ext_1.31.9+.patch; \
+       fi \
+    && patch --force -p1 < "$NGINX_EXT_PATCH" \
+    && patch --force -p1 < /build/patches/nginx-stream_proxy_ssl_alpn_1.31.9+.patch \
     && echo "patching nginx-${NGINX_VERSION} for independent module core support" \
-    && bash /build/modules/ngx_http_extra_variables_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
-    && bash /build/modules/ngx_stream_extra_variables_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
-    && bash /build/modules/ngx_http_ssl_strict_server_name_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
-    && bash /build/modules/ngx_http_proxy_filter_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
-    && bash /build/modules/ngx_http_grpc_filter_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
-    && bash /build/modules/ngx_http_cache_purge_module/util/apply-nginx-patches.sh "${NGINX_DIR}" \
+    && patch --force -p1 < /build/modules/ngx_http_extra_variables_module/patches/nginx-1.31.8+.patch \
+    && patch --force -p1 < /build/modules/ngx_stream_extra_variables_module/patches/nginx-1.31.8+.patch \
+    && patch --force -p1 < /build/modules/ngx_http_ssl_strict_server_name_module/patches/nginx-1.31.8+.patch \
+    && patch --force -p1 < /build/modules/ngx_http_proxy_filter_module/patches/nginx-request-builder-1.31.9+.patch \
+    && patch --force -p1 < /build/modules/ngx_http_grpc_filter_module/patches/nginx-request-builder-1.31.9+.patch \
+    && patch --force -p1 < /build/modules/ngx_http_cache_purge_module/patches/nginx-cache-policy-1.31.9+.patch \
+    && if [ "${RESTY_NGX_HTTP_CACHE_PURGE_MODULE_VERSION}" = "5.1.6" ]; then \
+           patch --force -d /build/modules/ngx_http_cache_purge_module -p1 \
+               < /build/patches/ngx_http_cache_purge_module-early_read_guard_5.1.6.patch; \
+       fi \
     && cd "${OPENRESTY_DIR}"/bundle/redis-nginx-module-* \
     && echo "patching ngx_http_redis_module" \
-    && patch -p1 < /build/patches/ngx_http_redis_module-conditional_upstream_0.40+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_redis_module-conditional_upstream_0.40+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/redis2-nginx-module-* \
     && echo "patching ngx_http_redis2_module" \
-    && patch -p1 < /build/patches/ngx_http_redis2_module-conditional_upstream_0.15rc1+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_redis2_module-conditional_upstream_0.15rc1+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/drizzle-nginx-module-* \
     && echo "patching ngx_http_drizzle_module" \
-    && patch -p1 < /build/patches/ngx_http_drizzle_module-conditional_upstream_0.1.15+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_drizzle_module-conditional_upstream_0.1.15+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_postgres-* \
     && echo "patching ngx_postgres_module" \
-    && patch -p1 < /build/patches/ngx_postgres_module-conditional_upstream_1.1+.patch \
+    && patch --force -p1 < /build/patches/ngx_postgres_module-conditional_upstream_1.1+.patch \
     && cd "${OPENRESTY_DIR}"/bundle/ngx_lua-* \
     && echo "patching ngx_http_lua_module for conditional upstream settings" \
-    && patch -p1 < /build/patches/ngx_http_lua_module-conditional_upstream_0.10.27rc1+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-conditional_upstream_0.10.27rc1+.patch \
     && echo "patching ngx_http_lua_module for ngx.fs" \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_http_lua_module-async_fs_0.10.32rc8+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_http_lua_module-http_client_0.10.32rc8+.patch \
-    && patch --batch --forward --fuzz=0 -p1 < /build/patches/ngx_http_lua_module-balancer_ssl_session_0.10.32rc8+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-async_fs_0.10.32rc8+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-http_client_0.10.32rc8+.patch \
+    && patch --force -p1 < /build/patches/ngx_http_lua_module-balancer_ssl_session_0.10.32rc8+.patch \
     && cd "${NGINX_DIR}" \
     && echo "patching nginx-${NGINX_VERSION} for ngx_http_upstream_log_module" \
-    && patch -p1 < /build/modules/ngx_http_upstream_log_module/ngx_http_upstream_log_1.25.3+.patch \
+    && patch --force -p1 < /build/modules/ngx_http_upstream_log_module/ngx_http_upstream_log_1.25.3+.patch \
     && echo "patching nginx-${NGINX_VERSION} for ngx_ssl_fingerprint_module" \
-    && patch -p1 < /build/modules/ngx_ssl_fingerprint_module/patches/nginx-1.29.3+.patch \
+    && patch --force -p1 < /build/modules/ngx_ssl_fingerprint_module/patches/nginx-1.29.3+.patch \
     && echo "resetting openresty release version" \
     && sed -i "s/\(openresty\/.*\)\"/\1.${RESTY_RELEASE}\"/" src/core/nginx.h
 
@@ -801,7 +818,6 @@ RUN mkdir -p /usr/local/openresty/share \
     && cd /build/lualib \
     && cp -r lua-resty-balancer/lib/* /usr/local/openresty/lualib/ \
     && install -m 755 lua-resty-balancer/librestychash.so /usr/local/openresty/lualib/ \
-    && cp -r jsonschema/lib/* /usr/local/openresty/lualib/ \
     && cp -r lua-resty-mlcache/lib/* /usr/local/openresty/lualib/
 
 # Install LuaRocks packages and runtime data.
@@ -820,6 +836,7 @@ RUN /usr/local/openresty/luajit/bin/luarocks install lua-lolhtml "${RESTY_LUA_LO
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openssl "${RESTY_LUA_RESTY_OPENSSL_VERSION}" \
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-http "${RESTY_LUA_RESTY_HTTP_VERSION}" \
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-hmac-ffi "${RESTY_LUA_RESTY_HMAC_FFI_VERSION}" \
+    && /usr/local/openresty/luajit/bin/luarocks install lua-resty-ljsonschema "${RESTY_LUA_RESTY_LJSONSCHEMA_VERSION}" \
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-jwt "${RESTY_LUA_RESTY_JWT_VERSION}" \
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-session "${RESTY_LUA_RESTY_SESSION_VERSION}" \
     && /usr/local/openresty/luajit/bin/luarocks install lua-resty-openidc "${RESTY_LUA_RESTY_OPENIDC_VERSION}" \
